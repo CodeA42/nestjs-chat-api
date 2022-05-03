@@ -1,0 +1,10 @@
+{
+    "type":"postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "nestapiuser",
+    "password": "megasecret",
+    "database": "nestapidb",
+    "entities": ["dist/**/*.entity{.ts,.js}"],
+    "synchronize": true
+}
