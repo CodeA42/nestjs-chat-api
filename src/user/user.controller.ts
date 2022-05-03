@@ -1,8 +1,9 @@
 import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/validation/joi.validation';
 import { UserAuthDto } from './dto/userAuthDto';
-import createUserSchema from './schemas/createUser.schema';
+import createUserSchema from './validationSchemas/createUser.schema';
 import { UserService } from './user.service';
+import loginUserSchema from './validationSchemas/loginUser.schema';
 
 @Controller('')
 export class UserController {
@@ -15,7 +16,7 @@ export class UserController {
   }
 
   @Post('login')
-  @UsePipes(new JoiValidationPipe(createUserSchema))
+  @UsePipes(new JoiValidationPipe(loginUserSchema))
   login(@Body() userAuthDto: UserAuthDto): any {
     return this.userService.login(userAuthDto);
   }
