@@ -10,5 +10,6 @@ export default Joi.object({
     tlds: { allow: ['com', 'net'] },
   }),
 })
+  .with('username', 'password')
   .with('password', 'repeatPassword')
   .xor('accessToken', 'password');
