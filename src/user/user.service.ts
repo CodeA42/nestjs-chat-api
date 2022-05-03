@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/user.dto';
+import { UserAuthDto } from './dto/userAuthDto';
 import User from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -18,36 +18,47 @@ export class UserService {
     private configService: ConfigService,
   ) {}
 
-  async register(userDto: CreateUserDto) {
+  async register(userAuthDto: UserAuthDto) {
+    debugger;
     try {
-      await this.selectByEmail(userDto.email);
+      await this.selectByEmail(userAuthDto.email);
       throw new HttpException('Email Exists', HttpStatus.CONFLICT);
-    } catch (e) {}
+    } catch (e) {
+      if (e instanceof HttpException) throw e;
+    }
 
     try {
-      await this.selectByUsername(userDto.username);
+      await this.selectByUsername(userAuthDto.username);
       throw new HttpException('Username exists', HttpStatus.CONFLICT);
-    } catch (e) {}
+    } catch (e) {
+      if (e instanceof HttpException) throw e;
+    }
 
-    const user = await this.hashPaswordAndInsertUser(userDto);
+    const user = await this.hashPaswordAndInsertUser(userAuthDto);
     return user.id;
   }
 
-  // login() {}
+  login(userAuthDto: UserAuthDto): any {
+    throw new Error('Method not implemented.');
+  }
 
-  // refresh() {}
+  refresh() {
+    throw new Error('Method not implemented.');
+  }
 
-  // logout() {}
+  logout() {
+    throw new Error('Method not implemented.');
+  }
 
-  private async hashPaswordAndInsertUser(userDto: CreateUserDto) {
+  private async hashPaswordAndInsertUser(userAuthDto: UserAuthDto) {
     const hashedPassword = await bcrypt.hash(
-      userDto.password,
+      userAuthDto.password,
       Number(this.configService.get<number>('saltRounds')),
     );
     return await this.insertUser(
-      userDto.username,
+      userAuthDto.username,
       hashedPassword,
-      userDto.email,
+      userAuthDto.email,
     );
   }
 
