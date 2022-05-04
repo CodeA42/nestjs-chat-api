@@ -12,7 +12,7 @@ export default class User {
   username: string;
 
   @Column({
-    length: 64,
+    type: 'text',
   })
   password: string;
 
