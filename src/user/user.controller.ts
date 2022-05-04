@@ -13,6 +13,7 @@ import createUserSchema from './validationSchemas/createUser.schema';
 import { UserService } from './user.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
 import { Cookies } from 'src/decorators/Cookies.decorator';
+import { Response } from 'express';
 
 @Controller('')
 export class UserController {
