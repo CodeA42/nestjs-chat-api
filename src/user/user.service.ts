@@ -7,19 +7,22 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserAuthDto } from './dto/userAuthDto';
-import User from './entities/user.entity';
+import { UserAuthDto } from './dto/UserAuthDto';
+import User from './entities/User.entity';
 import * as bcrypt from 'bcrypt';
+import { UserTokenDataDto } from './dto/UserTokenDataDto';
+import { decode, Secret, sign } from 'jsonwebtoken';
+import Token from './entities/Token.entity';
 
 Injectable();
 export class UserService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
+    @InjectRepository(Token) private tokensRepository: Repository<Token>,
     private configService: ConfigService,
   ) {}
 
   async register(userAuthDto: UserAuthDto) {
-    debugger;
     try {
       await this.selectByEmail(userAuthDto.email);
       throw new HttpException('Email Exists', HttpStatus.CONFLICT);
@@ -53,14 +56,17 @@ export class UserService {
     }
 
     const user: User = await this.hashPaswordAndInsertUser(userAuthDto);
-    return user.id;
+    return { id: user.id };
   }
 
-  async login(userAuthDto: UserAuthDto) {
+  async login(
+    userAuthDto: UserAuthDto,
+    userAgent: string,
+  ): Promise<[accessToken: string, refreshToken: string]> {
     let user: User;
     try {
       if (userAuthDto.email) {
-        user = await this.selectByEmail(userAuthDto.username);
+        user = await this.selectByEmail(userAuthDto.email);
       }
       if (userAuthDto.username) {
         user = await this.selectByUsername(userAuthDto.username);
@@ -71,9 +77,66 @@ export class UserService {
       }
     }
 
-    console.log(user);
+    const tokenData: UserTokenDataDto = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    };
 
-    throw new Error('Method not implemented.');
+    if (await bcrypt.compare(userAuthDto.password, user.password)) {
+      const accessToken: string = this.generateToken(
+        tokenData,
+        this.configService.get('ACCESS_TOKEN_SECRET'),
+        this.configService.get('ACCESS_TOKEN_DURATION'),
+      );
+
+      const refreshToken: string = this.generateToken(
+        tokenData,
+        this.configService.get('REFRESH_TOKEN_SECRET'),
+        this.configService.get('REFRESH_TOKEN_DURATION'),
+      );
+
+      try {
+        const exp: number = this.getTokenExp(refreshToken);
+        await this.insertToken(refreshToken, exp, user.username, userAgent);
+
+        return [accessToken, refreshToken];
+      } catch (e) {
+        console.error(e);
+        throw new HttpException(
+          'Server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  private async insertToken(
+    token: string,
+    exp: number,
+    username: string,
+    userAgent: string,
+  ) {
+    const tokenEntity = new Token();
+    tokenEntity.token = token;
+    tokenEntity.exp = exp;
+    tokenEntity.username = username;
+    tokenEntity.userAgent = userAgent;
+
+    await this.tokensRepository.save(tokenEntity);
+  }
+
+  private getTokenExp(token: string): number {
+    const decoded: any = decode(token);
+    return decoded.exp;
+  }
+
+  private generateToken(
+    user: UserTokenDataDto,
+    key: Secret,
+    expiresIn: string = this.configService.get('ACCESS_TOKEN_DURATION'),
+  ): string {
+    return sign({ user }, key, { expiresIn: expiresIn });
   }
 
   refresh() {
@@ -87,7 +150,7 @@ export class UserService {
   private async hashPaswordAndInsertUser(userAuthDto: UserAuthDto) {
     const hashedPassword = await bcrypt.hash(
       userAuthDto.password,
-      Number(this.configService.get<number>('saltRounds')),
+      Number(this.configService.get<number>('SALT_ROUNDS')),
     );
     return await this.insertUser(
       userAuthDto.username,
