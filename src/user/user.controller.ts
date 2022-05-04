@@ -14,6 +14,7 @@ import { UserService } from './user.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
 import { Cookies } from 'src/decorators/Cookies.decorator';
 import { Response } from 'express';
+import { Authentication } from 'src/decorators/Authentication.decorator';
 
 @Controller('')
 export class UserController {
@@ -41,6 +42,7 @@ export class UserController {
   }
 
   @Get('refresh')
+  @Authentication('refresh')
   refresh(@Cookies('refreshToken') refreshToken: string) {
     return this.userService.refresh(refreshToken);
   }
