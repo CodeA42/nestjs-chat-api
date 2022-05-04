@@ -1,9 +1,10 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Headers, Post, Res, UsePipes } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/validation/joi.validation';
-import { UserAuthDto } from './dto/userAuthDto';
+import { UserAuthDto } from './dto/UserAuthDto';
 import createUserSchema from './validationSchemas/createUser.schema';
 import { UserService } from './user.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
+import { Response } from 'express';
 
 @Controller('')
 export class UserController {
@@ -17,7 +18,16 @@ export class UserController {
 
   @Post('login')
   @UsePipes(new JoiValidationPipe(loginUserSchema))
-  login(@Body() userAuthDto: UserAuthDto): any {
-    return this.userService.login(userAuthDto);
+  async login(
+    @Body() userAuthDto: UserAuthDto,
+    @Headers() headers,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ accessToken: string }> {
+    const [accessToken, refreshToken] = await this.userService.login(
+      userAuthDto,
+      headers['user-agent'],
+    );
+    response.cookie('refreshToken', refreshToken, { httpOnly: true });
+    return { accessToken };
   }
 }
