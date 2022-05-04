@@ -24,21 +24,55 @@ export class UserService {
       await this.selectByEmail(userAuthDto.email);
       throw new HttpException('Email Exists', HttpStatus.CONFLICT);
     } catch (e) {
-      if (e instanceof HttpException) throw e;
+      if (e instanceof NotFoundException) {
+      } else if (e instanceof HttpException) {
+        throw e;
+      } else {
+        console.error(e);
+        throw new HttpException(
+          'Server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
 
     try {
       await this.selectByUsername(userAuthDto.username);
       throw new HttpException('Username exists', HttpStatus.CONFLICT);
     } catch (e) {
-      if (e instanceof HttpException) throw e;
+      if (e instanceof NotFoundException) {
+      } else if (e instanceof HttpException) {
+        throw e;
+      } else {
+        console.error(e);
+        throw new HttpException(
+          'Server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
 
-    const user = await this.hashPaswordAndInsertUser(userAuthDto);
+    const user: User = await this.hashPaswordAndInsertUser(userAuthDto);
     return user.id;
   }
 
-  login(userAuthDto: UserAuthDto): any {
+  async login(userAuthDto: UserAuthDto) {
+    let user: User;
+    try {
+      if (userAuthDto.email) {
+        user = await this.selectByEmail(userAuthDto.username);
+      }
+      if (userAuthDto.username) {
+        user = await this.selectByUsername(userAuthDto.username);
+      }
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw new HttpException('Wrong credentials', HttpStatus.CONFLICT);
+      }
+    }
+
+    console.log(user);
+
     throw new Error('Method not implemented.');
   }
 
