@@ -16,6 +16,7 @@ import { decode, Secret, sign } from 'jsonwebtoken';
 import Token from './entities/Token.entity';
 import EmailExistsException from './exceptions/EmailExistsException';
 import UsernameExistsException from './exceptions/UsernameExistsException';
+import WrongCredentialsException from './exceptions/WrongCredentialsException';
 
 Injectable();
 export class UserService {
@@ -70,7 +71,7 @@ export class UserService {
       }
     } catch (e) {
       if (e instanceof NotFoundException) {
-        throw new HttpException('Wrong credentials', HttpStatus.CONFLICT);
+        throw new WrongCredentialsException();
       }
     }
 
@@ -100,10 +101,7 @@ export class UserService {
         return [accessToken, refreshToken];
       } catch (e) {
         console.error(e);
-        throw new HttpException(
-          'Server error',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw new InternalServerErrorException();
       }
     }
   }
