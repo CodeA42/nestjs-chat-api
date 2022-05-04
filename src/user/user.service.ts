@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -13,6 +14,8 @@ import * as bcrypt from 'bcrypt';
 import { UserTokenDataDto } from './dto/UserTokenDataDto';
 import { decode, Secret, sign } from 'jsonwebtoken';
 import Token from './entities/Token.entity';
+import EmailExistsException from './exceptions/EmailExistsException';
+import UsernameExistsException from './exceptions/UsernameExistsException';
 
 Injectable();
 export class UserService {
@@ -25,33 +28,27 @@ export class UserService {
   async register(userAuthDto: UserAuthDto) {
     try {
       await this.selectByEmail(userAuthDto.email);
-      throw new HttpException('Email Exists', HttpStatus.CONFLICT);
+      throw new EmailExistsException();
     } catch (e) {
       if (e instanceof NotFoundException) {
-      } else if (e instanceof HttpException) {
+      } else if (e instanceof EmailExistsException) {
         throw e;
       } else {
         console.error(e);
-        throw new HttpException(
-          'Server error',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw new InternalServerErrorException();
       }
     }
 
     try {
       await this.selectByUsername(userAuthDto.username);
-      throw new HttpException('Username exists', HttpStatus.CONFLICT);
+      throw new UsernameExistsException();
     } catch (e) {
       if (e instanceof NotFoundException) {
-      } else if (e instanceof HttpException) {
+      } else if (e instanceof UsernameExistsException) {
         throw e;
       } else {
         console.error(e);
-        throw new HttpException(
-          'Server error',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw new InternalServerErrorException();
       }
     }
 
