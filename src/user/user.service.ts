@@ -139,7 +139,7 @@ export class UserService {
     return sign({ user }, key, { expiresIn: expiresIn });
   }
 
-  refresh() {
+  refresh(refreshToken: string) {
     throw new Error('Method not implemented.');
   }
 
