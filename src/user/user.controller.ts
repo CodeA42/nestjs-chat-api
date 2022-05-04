@@ -5,6 +5,7 @@ import {
   Headers,
   Post,
   Res,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/validation/joi.validation';
@@ -16,6 +17,7 @@ import { Cookies } from 'src/decorators/Cookies.decorator';
 import { Response } from 'express';
 import { Authentication } from 'src/decorators/Authentication.decorator';
 import { AuthTypes } from 'src/types/AuthTypes';
+import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 
 @Controller('')
 export class UserController {
@@ -44,6 +46,7 @@ export class UserController {
 
   @Get('refresh')
   @Authentication(AuthTypes.REFRESH)
+  @UseGuards(AuthenticationGuard)
   refresh(@Cookies('refreshToken') refreshToken: string) {
     return this.userService.refresh(refreshToken);
   }
