@@ -1,10 +1,18 @@
-import { Body, Controller, Headers, Post, Res, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Post,
+  Res,
+  UsePipes,
+} from '@nestjs/common';
 import { JoiValidationPipe } from 'src/validation/joi.validation';
 import { UserAuthDto } from './dto/UserAuthDto';
 import createUserSchema from './validationSchemas/createUser.schema';
 import { UserService } from './user.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
-import { Response } from 'express';
+import { Cookies } from 'src/decorators/Cookies.decorator';
 
 @Controller('')
 export class UserController {
@@ -29,5 +37,10 @@ export class UserController {
     );
     response.cookie('refreshToken', refreshToken, { httpOnly: true });
     return { accessToken };
+  }
+
+  @Get('refresh')
+  refresh(@Cookies('refreshToken') refreshToken: string) {
+    return this.userService.refresh(refreshToken);
   }
 }
