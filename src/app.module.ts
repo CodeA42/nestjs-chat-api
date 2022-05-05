@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import Token from './entities/Token.entity';
 import User from './entities/User.entity';
 import { AuthenticationModule } from './authentication/authentication.module';
+import { ChatModule } from './chat/Chat.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
     }),
     ConfigModule.forRoot(),
     AuthenticationModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
