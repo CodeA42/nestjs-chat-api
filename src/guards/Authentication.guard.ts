@@ -27,11 +27,12 @@ export class AuthenticationGuard implements CanActivate {
       context.getHandler(),
     );
 
+    let isAuthenticated = false;
+
     if (authenticationType === AuthTypes.REFRESH) {
       const req: Request = context.switchToHttp().getRequest();
       const res: Response = context.switchToHttp().getResponse();
       const refreshToken = req.cookies?.[AuthTypes.REFRESH];
-      let isAuthenticated = false;
 
       try {
         const data = verify(
@@ -53,8 +54,8 @@ export class AuthenticationGuard implements CanActivate {
         }
         throw new UnauthorizedException();
       }
-
-      return isAuthenticated;
     }
+
+    return isAuthenticated;
   }
 }
