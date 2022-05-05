@@ -4,6 +4,7 @@ import {
   Get,
   Headers,
   Post,
+  Req,
   Res,
   UseGuards,
   UsePipes,
@@ -13,8 +14,7 @@ import { UserAuthDto } from './dto/UserAuthDto';
 import createUserSchema from './validationSchemas/createUser.schema';
 import { AuthenticationService } from './authentication.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
-import { Cookies } from 'src/decorators/Cookies.decorator';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { Authentication } from 'src/decorators/Authentication.decorator';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
@@ -34,20 +34,20 @@ export class AuthenticationController {
   async login(
     @Body() userAuthDto: UserAuthDto,
     @Headers() headers,
-    @Res({ passthrough: true }) response: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<{ accessToken: string }> {
     const [accessToken, refreshToken] = await this.userService.login(
       userAuthDto,
       headers['user-agent'],
     );
-    response.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true });
     return { accessToken };
   }
 
   @Get('refresh')
   @Authentication(AuthTypes.REFRESH)
   @UseGuards(AuthenticationGuard)
-  refresh(@Cookies('refreshToken') refreshToken: string) {
-    return this.userService.refresh(refreshToken);
+  refresh(@Req() req: Request) {
+    return this.userService.refresh(req);
   }
 }
