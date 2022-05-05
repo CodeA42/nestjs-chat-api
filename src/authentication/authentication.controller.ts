@@ -11,17 +11,17 @@ import {
 import { JoiValidationPipe } from 'src/validation/joi.validation';
 import { UserAuthDto } from './dto/UserAuthDto';
 import createUserSchema from './validationSchemas/createUser.schema';
-import { UserService } from './user.service';
+import { AuthenticationService } from './authentication.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
 import { Cookies } from 'src/decorators/Cookies.decorator';
 import { Response } from 'express';
 import { Authentication } from 'src/decorators/Authentication.decorator';
-import { AuthTypes } from 'src/types/AuthTypes';
+import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 
 @Controller('')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class AuthenticationController {
+  constructor(private readonly userService: AuthenticationService) {}
 
   @Post('/register')
   @UsePipes(new JoiValidationPipe(createUserSchema))

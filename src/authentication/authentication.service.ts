@@ -7,17 +7,17 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserAuthDto } from './dto/UserAuthDto';
-import User from './entities/User.entity';
+import User from '../entities/User.entity';
 import * as bcrypt from 'bcrypt';
 import { UserTokenDataDto } from './dto/UserTokenDataDto';
 import { decode, Secret, sign } from 'jsonwebtoken';
-import Token from './entities/Token.entity';
-import EmailExistsException from './exceptions/EmailExistsException';
-import UsernameExistsException from './exceptions/UsernameExistsException';
-import WrongCredentialsException from './exceptions/WrongCredentialsException';
+import Token from '../entities/Token.entity';
+import EmailExistsException from '../exceptions/EmailExistsException';
+import UsernameExistsException from '../exceptions/UsernameExistsException';
+import WrongCredentialsException from '../exceptions/WrongCredentialsException';
 
 Injectable();
-export class UserService {
+export class AuthenticationService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Token) private tokensRepository: Repository<Token>,
@@ -189,5 +189,14 @@ export class UserService {
       return null;
     }
     throw new NotFoundException();
+  }
+
+  async deleteToken(token: string) {
+    try {
+      return await this.tokensRepository.delete({ token });
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 }
