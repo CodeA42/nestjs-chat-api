@@ -148,8 +148,14 @@ export class AuthenticationService {
     return { accessToken };
   }
 
-  logout() {
-    throw new Error('Method not implemented.');
+  async logout(token: string) {
+    try {
+      await this.deleteToken(token);
+      return 'Logged Out';
+    } catch (e) {
+      console.error(e);
+      throw new InternalServerErrorException();
+    }
   }
 
   private async hashPaswordAndInsertUser(userAuthDto: UserAuthDto) {

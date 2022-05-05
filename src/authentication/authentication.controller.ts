@@ -18,15 +18,16 @@ import { Request, Response } from 'express';
 import { Authentication } from 'src/decorators/Authentication.decorator';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
+import { Cookies } from 'src/decorators/Cookies.decorator';
 
 @Controller('')
 export class AuthenticationController {
-  constructor(private readonly userService: AuthenticationService) {}
+  constructor(private readonly authenticationService: AuthenticationService) {}
 
   @Post('/register')
   @UsePipes(new JoiValidationPipe(createUserSchema))
   register(@Body() userAuthDto: UserAuthDto): any {
-    return this.userService.register(userAuthDto);
+    return this.authenticationService.register(userAuthDto);
   }
 
   @Post('login')
@@ -36,7 +37,7 @@ export class AuthenticationController {
     @Headers() headers,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ accessToken: string }> {
-    const [accessToken, refreshToken] = await this.userService.login(
+    const [accessToken, refreshToken] = await this.authenticationService.login(
       userAuthDto,
       headers['user-agent'],
     );
@@ -48,6 +49,18 @@ export class AuthenticationController {
   @Authentication(AuthTypes.REFRESH)
   @UseGuards(AuthenticationGuard)
   refresh(@Req() req: Request) {
-    return this.userService.refresh(req);
+    return this.authenticationService.refresh(req);
+  }
+
+  @Get('logout')
+  @Authentication(AuthTypes.REFRESH)
+  @UseGuards(AuthenticationGuard)
+  async logout(
+    @Cookies(AuthTypes.REFRESH) refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    res.clearCookie(AuthTypes.REFRESH);
+    const response = await this.authenticationService.logout(refreshToken);
+    return { response };
   }
 }
