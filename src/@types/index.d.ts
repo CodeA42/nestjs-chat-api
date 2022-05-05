@@ -11,12 +11,12 @@ declare module 'express' {
 }
 
 export type JwtPayload = {
-  user: User;
+  user: TokenUser;
   iat: number;
   exp: number;
 };
 
-export type User = {
+export type TokenUser = {
   id: string;
   username: string;
   email: string;
