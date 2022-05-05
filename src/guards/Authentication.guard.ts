@@ -6,15 +6,19 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { JwtPayload } from 'src/@types';
 import { AuthTypes } from 'src/@types/AuthTypes';
+import { AuthenticationService } from 'src/authentication/authentication.service';
+import SessionExpiredException from 'src/exceptions/SessionExpiredException';
 
 export class AuthenticationGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject(AuthenticationService)
+    private readonly authenticationService: AuthenticationService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -25,21 +29,29 @@ export class AuthenticationGuard implements CanActivate {
 
     if (authenticationType === AuthTypes.REFRESH) {
       const req: Request = context.switchToHttp().getRequest();
+      const res: Response = context.switchToHttp().getResponse();
       const refreshToken = req.cookies?.[AuthTypes.REFRESH];
-      const isAuthenticated = false;
+      let isAuthenticated = false;
 
       try {
         const data = verify(
           refreshToken,
           this.configService.get(AuthTypes.REFRESH_SECRET),
         ) as JwtPayload;
-        //if(Math.floor(Date.now() / 1000) > decoded.exp){
-        if (Math.floor(Date.now() / 1000) > data.exp) {
-          // await
+
+        if (Math.floor(Date.now() / 1000) >= data.exp) {
+          await this.authenticationService.deleteToken(refreshToken);
+          res.clearCookie(AuthTypes.REFRESH);
+          throw new SessionExpiredException();
+        } else {
+          req.user = data.user;
+          isAuthenticated = true;
         }
-        req.user = data.user;
       } catch (e) {
-        console.error(e);
+        if (e instanceof SessionExpiredException) {
+          throw e;
+        }
+        throw new UnauthorizedException();
       }
 
       return isAuthenticated;
