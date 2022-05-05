@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { verify } from 'jsonwebtoken';
-import { AuthTypes } from 'src/types/AuthTypes';
-import { DecodedToken } from 'src/types/types';
+import { JwtPayload } from 'src/@types';
+import { AuthTypes } from 'src/@types/AuthTypes';
 
 export class AuthenticationGuard implements CanActivate {
   constructor(
@@ -25,21 +25,22 @@ export class AuthenticationGuard implements CanActivate {
 
     if (authenticationType === AuthTypes.REFRESH) {
       const req: Request = context.switchToHttp().getRequest();
-      const res: Response = context.switchToHttp().getResponse();
       const refreshToken = req.cookies?.[AuthTypes.REFRESH];
+      const isAuthenticated = false;
 
-      const isAuthenticated = await verify(
-        refreshToken,
-        this.configService.get(AuthTypes.REFRESH_SECRET),
-        (err: Error, decoded: DecodedToken): boolean => {
-          if (err) {
-            throw new UnauthorizedException();
-          }
-
-          res.locals.user = decoded.user;
-          return true;
-        },
-      );
+      try {
+        const data = verify(
+          refreshToken,
+          this.configService.get(AuthTypes.REFRESH_SECRET),
+        ) as JwtPayload;
+        //if(Math.floor(Date.now() / 1000) > decoded.exp){
+        if (Math.floor(Date.now() / 1000) > data.exp) {
+          // await
+        }
+        req.user = data.user;
+      } catch (e) {
+        console.error(e);
+      }
 
       return isAuthenticated;
     }
