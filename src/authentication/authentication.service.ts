@@ -15,6 +15,9 @@ import Token from '../entities/Token.entity';
 import EmailExistsException from '../exceptions/EmailExistsException';
 import UsernameExistsException from '../exceptions/UsernameExistsException';
 import WrongCredentialsException from '../exceptions/WrongCredentialsException';
+import { Request } from 'express';
+import { AuthTypes } from 'src/@types/AuthTypes';
+import { TokenUser } from 'src/@types';
 
 Injectable();
 export class AuthenticationService {
@@ -80,17 +83,9 @@ export class AuthenticationService {
     };
 
     if (await bcrypt.compare(userAuthDto.password, user.password)) {
-      const accessToken: string = this.generateToken(
-        tokenData,
-        this.configService.get('ACCESS_TOKEN_SECRET'),
-        this.configService.get('ACCESS_TOKEN_DURATION'),
-      );
+      const accessToken: string = this.generateAccessToken(tokenData);
 
-      const refreshToken: string = this.generateToken(
-        tokenData,
-        this.configService.get('REFRESH_TOKEN_SECRET'),
-        this.configService.get('REFRESH_TOKEN_DURATION'),
-      );
+      const refreshToken: string = this.generateRefreshToken(tokenData);
 
       try {
         const exp: number = this.getTokenExp(refreshToken);
@@ -127,13 +122,30 @@ export class AuthenticationService {
   private generateToken(
     user: UserTokenDataDto,
     key: Secret,
-    expiresIn: string = this.configService.get('ACCESS_TOKEN_DURATION'),
+    expiresIn: string = this.configService.get(AuthTypes.ACCESS_DURATION),
   ): string {
     return sign({ user }, key, { expiresIn: expiresIn });
   }
 
-  refresh(refreshToken: string) {
-    throw new Error('Method not implemented.');
+  private generateAccessToken(user: TokenUser): string {
+    return this.generateToken(
+      user,
+      this.configService.get(AuthTypes.ACCESS_SECRET),
+      this.configService.get(AuthTypes.ACCESS_DURATION),
+    );
+  }
+
+  private generateRefreshToken(user: TokenUser): string {
+    return this.generateToken(
+      user,
+      this.configService.get(AuthTypes.REFRESH_SECRET),
+      this.configService.get(AuthTypes.REFRESH_DURATION),
+    );
+  }
+
+  refresh(req: Request): { accessToken: string } {
+    const accessToken = this.generateAccessToken(req.user);
+    return { accessToken };
   }
 
   logout() {
@@ -192,6 +204,7 @@ export class AuthenticationService {
   }
 
   async deleteToken(token: string) {
+    //TODO: check if deleted and throw error if token is not found
     try {
       return await this.tokensRepository.delete({ token });
     } catch (e) {
