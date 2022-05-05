@@ -3,9 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import Token from './user/entities/Token.entity';
-import User from './user/entities/User.entity';
-import { UserModule } from './user/user.module';
+import Token from './entities/Token.entity';
+import User from './entities/User.entity';
+import { AuthenticationModule } from './authentication/authentication.module';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { UserModule } from './user/user.module';
       synchronize: true,
     }),
     ConfigModule.forRoot(),
-    UserModule,
+    AuthenticationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
