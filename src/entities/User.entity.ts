@@ -27,9 +27,4 @@ export default class User {
     cascade: true,
   })
   chats: Chat[];
-
-  @Column({
-    nullable: true,
-  })
-  image: string;
 }
