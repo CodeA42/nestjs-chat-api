@@ -10,15 +10,18 @@ import {
   WebSocketServer,
   WsResponse,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server, ServerOptions, Socket } from 'socket.io';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { Authentication } from 'src/decorators/Authentication.decorator';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 
-@WebSocketGateway(80, { cors: '*' })
+@WebSocketGateway(80, { cors: '*', namespace: '/chat' })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  @WebSocketServer()
+  wss: Server;
+
   private logger: Logger = new Logger('ChatGateway');
   afterInit(server: Server) {
     this.logger.log('Initialized!');
@@ -29,17 +32,29 @@ export class ChatGateway
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
   }
-  @WebSocketServer()
-  server: Server;
 
   // @Authentication(AuthTypes.ACCESS)
   // @UseGuards(AuthenticationGuard)
-  @SubscribeMessage('join')
-  joinRoom(client: Socket, message: string): WsResponse<string> {
+  @SubscribeMessage('messageToServer')
+  message(
+    client: Socket,
+    message: { sender: string; room: string; message: string },
+  ) {
     // console.log(socket);
+    this.wss.to(message.room).emit('messageToClient', message);
 
-    // console.log(message);
+    // return { event: 'message', data: message };
+  }
 
-    return { event: 'message', data: message };
+  @SubscribeMessage('joinRoom')
+  handleJoinRoom(client: Socket, room: string) {
+    client.join(room);
+    client.emit('joinedRoom', room);
+  }
+
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(client: Socket, room: string) {
+    client.leave(room);
+    client.emit('leftRoom', room);
   }
 }
