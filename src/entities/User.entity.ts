@@ -29,7 +29,7 @@ export default class User {
   })
   email: string;
 
-  @ManyToMany((type) => Chat, (chat) => chat.users, {
+  @ManyToMany(() => Chat, (chat) => chat.users, {
     cascade: true,
   })
   chats: Chat[];
