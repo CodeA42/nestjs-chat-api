@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  ManyToMany,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import Chat from './Chat.entity';
 import User from './User.entity';
 
@@ -18,10 +12,10 @@ export default class Message {
   })
   body: string;
 
-  @ManyToOne((type) => User)
+  @ManyToOne(() => User)
   user: User;
 
-  @ManyToOne((type) => Chat, {
+  @ManyToOne(() => Chat, {
     onDelete: 'CASCADE',
   })
   chat: Chat;
