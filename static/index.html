@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/socket.io/dist/index.js"></script> -->
+  <!-- <script src="/node_modules//socket.io/dist/index.js"></script> -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script> -->
+  <script src="http://localhost:80/socket.io/socket.io.js"></script>
+  <link href="styles.css" rel="stylesheet">
+  <title>Web Sockets Client</title>
+</head>
+<body>
+  <div id="v-app">
+    <h1>Websockets tester</h1>
+    <form>
+      <input type="text" v-model="text">
+      <button type="submit" @click.prevent="sendChatMessage()">Send</button>
+    </form>
+    <div class="tab-row">
+      <button class="tab-btn" :class="{ active: activeRoom == 'general' }" @click="activeRoom = 'general'">General</button>
+      <button class="tab-btn" :class="{ active: activeRoom == 'typescript' }" @click="activeRoom = 'typescript'">TypeScript</button>
+      <button class="tab-btn" :class="{ active: activeRoom == 'nestjs' }" @click="activeRoom = 'nestjs'">NestJS</button>
+    </div>
+    <div class="tab-row">
+      Status: {{ isMemberOfActiveRoom ? 'Joined' : 'NOT Joined'}} <button @click="toggleRoomMembership()">{{ isMemberOfActiveRoom ? 'Leave' : 'Join'}}</button>
+    </div>
+    <p>
+      <ul>
+        <li v-for="msg of messages[activeRoom]">
+          <strong>{{ msg.sender }}:</strong> {{ msg.message }}
+        </li>
+      </ul>
+    </p>
+  </div>
+  <script>
+    var app = new Vue({
+      el: '#v-app',
+      data: {
+        username: '',
+        text: '',
+        messages: {
+          general: [],
+          typescript: [],
+          nestjs: [],
+        },
+        rooms: {
+          general: false,
+          typescript: false,
+          nestjs: false,
+        },
+        socket: { chat: null },
+        activeRoom: 'general'
+      },
+      methods: {
+        sendChatMessage() {
+          //Check if user is member of active room
+          if(this.isMemberOfActiveRoom) {
+            this.socket.chat.emit('messageToServer', { sender: this.username, room: this.activeRoom ,message: this.text});
+          } else {
+            alert('You must be a member of the active room to send messages');
+          }
+        },
+        receiveChatMessage(msg) {
+          this.messages[this.activeRoom].push(msg);
+        },
+        toggleRoomMembership() {
+          if(this.isMemberOfActiveRoom) {
+            this.socket.chat.emit('leaveRoom', this.activeRoom);
+          } else {
+            this.socket.chat.emit('joinRoom', this.activeRoom);
+          }
+        }
+      },
+      computed: {
+        isMemberOfActiveRoom() {
+          return this.rooms[this.activeRoom];
+        }
+      },
+      created() {
+        this.username = prompt('Enter your username: ');
+
+        this.socket.chat = io('http://localhost:80/chat');
+        this.socket.chat.on('messageToClient', (msg) => {
+          this.receiveChatMessage(msg);
+        })
+
+        this.socket.chat.on('connect', () => {
+          this.toggleRoomMembership();
+        })
+
+        this.socket.chat.on('joinedRoom', (room) => {
+          this.rooms[room] = true;
+        });
+        
+        this.socket.chat.on('leftROom', (room) => {
+          this.rooms[room] = false;
+        });
+
+
+      }
+    })
+  </script>
+</body>
+</html>
