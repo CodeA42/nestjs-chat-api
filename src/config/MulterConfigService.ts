@@ -16,10 +16,12 @@ export class MulterConfigService implements MulterOptionsFactory {
   createMulterOptions(): MulterModuleOptions {
     return {
       limits: {
-        fileSize: +this.configService.get<number>('UPLOAD_LOCATION'),
+        fileSize: +this.configService.get<number>('MAX_FILE_SIZE'),
       },
       storage: diskStorage({
         destination: (req: any, file: any, cb: any) => {
+          console.log('destination()');
+
           const uploadPath = this.configService.get<string>('UPLOAD_LOCATION');
 
           if (!existsSync(uploadPath)) {
