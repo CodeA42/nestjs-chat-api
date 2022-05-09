@@ -1,16 +1,29 @@
 import {
+  Body,
   Controller,
   Post,
-  UploadedFile,
-  UseInterceptors,
+  Req,
+  UseGuards,
+  UsePipes,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
+import { AuthTypes } from 'src/@types/AuthTypes';
+import { Authentication } from 'src/decorators/Authentication.decorator';
+import { AuthenticationGuard } from 'src/guards/Authentication.guard';
+import { JoiValidationPipe } from 'src/validation/joi.validation';
+import { ChatService } from './Chat.service';
+import { createChatDto } from './dto/createChatDto';
+import createChatSchema from './validationSchemas/createChat.schema';
 
 @Controller('chat')
 export class ChatController {
+  constructor(private readonly chatService: ChatService) {}
+
   @Post('create_chat')
-  @UseInterceptors(FileInterceptor('image'))
-  createChat(@UploadedFile() image: Express.Multer.File) {
-    console.log(image);
+  @UsePipes(new JoiValidationPipe(createChatSchema))
+  @Authentication(AuthTypes.ACCESS)
+  @UseGuards(AuthenticationGuard)
+  createChat(@Body() newChatData: createChatDto, @Req() req: Request) {
+    this.chatService.createChat(newChatData, req);
   }
 }
