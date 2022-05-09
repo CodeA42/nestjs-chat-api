@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
+} from 'typeorm';
+import Chat from './Chat.entity';
 
 @Entity()
 export default class User {
@@ -21,4 +28,12 @@ export default class User {
     unique: true,
   })
   email: string;
+
+  @ManyToMany((type) => Chat, (chat) => chat.users, {
+    cascade: true,
+  })
+  chats: Chat[];
+
+  @Column()
+  image: string;
 }
