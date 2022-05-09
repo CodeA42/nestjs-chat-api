@@ -58,7 +58,7 @@ export class AuthenticationController {
   async logout(
     @Cookies(AuthTypes.REFRESH) refreshToken: string,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<{ response: string }> {
     res.clearCookie(AuthTypes.REFRESH);
     const response = await this.authenticationService.logout(refreshToken);
     return { response };
