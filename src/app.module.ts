@@ -11,8 +11,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import Chat from './entities/Chat.entity';
 import Message from './entities/Message.entity';
-import { MulterModule } from '@nestjs/platform-express';
-import { MulterConfigService } from './config/MulterConfigService';
 
 @Module({
   imports: [
@@ -31,11 +29,6 @@ import { MulterConfigService } from './config/MulterConfigService';
     ChatModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'static'),
-    }),
-    MulterModule.registerAsync({
-      imports: [ConfigModule],
-      useClass: MulterConfigService,
-      inject: [ConfigService],
     }),
   ],
   controllers: [AppController],
