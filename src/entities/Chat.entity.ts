@@ -24,9 +24,4 @@ export default class Chat {
 
   @ManyToMany(() => User, (user) => user.chats)
   users: User[];
-
-  @Column({
-    nullable: true,
-  })
-  image: string;
 }
