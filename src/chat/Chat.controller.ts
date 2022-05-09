@@ -12,7 +12,7 @@ import { Authentication } from 'src/decorators/Authentication.decorator';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { JoiValidationPipe } from 'src/validation/joi.validation';
 import { ChatService } from './Chat.service';
-import { createChatDto } from './dto/createChatDto';
+import { CreateChatDto } from './dto/CreateChatDto';
 import createChatSchema from './validationSchemas/createChat.schema';
 
 @Controller('chat')
@@ -23,7 +23,7 @@ export class ChatController {
   @UsePipes(new JoiValidationPipe(createChatSchema))
   @Authentication(AuthTypes.ACCESS)
   @UseGuards(AuthenticationGuard)
-  createChat(@Body() newChatData: createChatDto, @Req() req: Request) {
+  createChat(@Body() newChatData: CreateChatDto, @Req() req: Request) {
     this.chatService.createChat(newChatData, req);
   }
 }
