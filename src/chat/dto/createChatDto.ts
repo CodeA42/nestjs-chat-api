@@ -1,3 +1,3 @@
-export class createChatDto {
+export class CreateChatDto {
   name: string;
 }
