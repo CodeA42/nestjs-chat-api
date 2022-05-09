@@ -7,6 +7,8 @@ import Token from './entities/Token.entity';
 import User from './entities/User.entity';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { ChatModule } from './chat/Chat.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -23,6 +25,9 @@ import { ChatModule } from './chat/Chat.module';
     ConfigModule.forRoot(),
     AuthenticationModule,
     ChatModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'static'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
