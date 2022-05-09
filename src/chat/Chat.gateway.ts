@@ -47,13 +47,13 @@ export class ChatGateway
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(client: Socket, room: string) {
+  joinRoom(client: Socket, room: string) {
     client.join(room);
     client.emit('joinedRoom', room);
   }
 
   @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(client: Socket, room: string) {
+  leaveRoom(client: Socket, room: string) {
     client.leave(room);
     client.emit('leftRoom', room);
   }
