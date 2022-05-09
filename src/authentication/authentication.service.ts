@@ -148,7 +148,7 @@ export class AuthenticationService {
     return { accessToken };
   }
 
-  async logout(token: string) {
+  async logout(token: string): Promise<string> {
     try {
       await this.deleteToken(token);
       return 'Logged Out';
