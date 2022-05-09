@@ -17,12 +17,12 @@ export default class Chat {
   })
   name: string;
 
-  @ManyToOne((type) => User, {
+  @ManyToOne(() => User, {
     onDelete: 'CASCADE',
   })
   admin: User;
 
-  @ManyToMany((type) => User, (user) => user.chats)
+  @ManyToMany(() => User, (user) => user.chats)
   users: User[];
 
   @Column()
