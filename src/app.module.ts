@@ -9,6 +9,8 @@ import { AuthenticationModule } from './authentication/authentication.module';
 import { ChatModule } from './chat/Chat.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import Chat from './entities/Chat.entity';
+import Message from './entities/Message.entity';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { join } from 'path';
       username: 'nestapiuser',
       password: 'megasecret',
       database: 'nestapidb',
-      entities: [Token, User],
+      entities: [Token, User, Chat, Message],
       synchronize: true,
     }),
     ConfigModule.forRoot(),
