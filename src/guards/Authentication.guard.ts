@@ -56,6 +56,33 @@ export class AuthenticationGuard implements CanActivate {
       }
     }
 
+    if (authenticationType === AuthTypes.ACCESS) {
+      const req: Request = context.switchToHttp().getRequest();
+      const res: Response = context.switchToHttp().getResponse();
+
+      const authHeader = req.headers['authorization'];
+      const accessToken = authHeader && authHeader.split(' ')[1];
+
+      try {
+        const data = verify(
+          accessToken,
+          this.configService.get<string>(AuthTypes.ACCESS_SECRET),
+        ) as JwtPayload;
+
+        if (Math.floor(Date.now() / 1000) >= data.exp) {
+          throw new SessionExpiredException();
+        } else {
+          req.user = data.user;
+          isAuthenticated = true;
+        }
+      } catch (e) {
+        if (e instanceof SessionExpiredException) {
+          throw e;
+        }
+        throw new UnauthorizedException();
+      }
+    }
+
     return isAuthenticated;
   }
 }
