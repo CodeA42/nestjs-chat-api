@@ -58,7 +58,6 @@ export class AuthenticationGuard implements CanActivate {
 
     if (authenticationType === AuthTypes.ACCESS) {
       const req: Request = context.switchToHttp().getRequest();
-      const res: Response = context.switchToHttp().getResponse();
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
