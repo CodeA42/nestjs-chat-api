@@ -34,6 +34,8 @@ export default class User {
   })
   chats: Chat[];
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   image: string;
 }
