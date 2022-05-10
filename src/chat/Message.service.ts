@@ -47,5 +47,10 @@ export class MessageService {
     }
   }
 
-  async updateMessage(id: string, body: string) {}
+  async updateMessage(id: string, body: string) {
+    const message: Message = await this.getMessage(id);
+    message.body = body;
+
+    return await this.messageRepository.save(message);
+  }
 }
