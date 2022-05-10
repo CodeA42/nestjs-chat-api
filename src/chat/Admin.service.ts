@@ -18,10 +18,10 @@ export class AdminService {
     this.chatRepository.delete({ id: roomId });
   }
 
-  async transferOwnership(roomId: string, userId: unknown) {
+  async transferOwnership(roomId: string, userId: string) {
     const chat: Chat = await this.chatRepository.findOne({ id: roomId });
 
-    chat.admin = userId as User;
+    chat.adminId = userId;
 
     return this.chatRepository.save(chat);
   }
