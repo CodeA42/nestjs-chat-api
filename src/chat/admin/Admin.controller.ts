@@ -7,17 +7,19 @@ import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
 
 @Controller('chat/:chatId/admin')
-@Roles('admin')
-@Authentication(AuthTypes.ACCESS)
-@UseGuards(AuthenticationGuard)
+@UseGuards(AuthenticationGuard, AuthorizationGurad)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
   @Delete('delete_room')
+  @Roles('admin')
+  @Authentication(AuthTypes.ACCESS)
   getRoute(@Param('chatId') id: string) {
     return `Param: ${id}`;
   }
 
   @Get('transfer/:userId')
+  @Roles('admin')
+  @Authentication(AuthTypes.ACCESS)
   transferOwnership(
     @Param('chatId') chatId: string,
     @Param('userId') userId: string,
