@@ -143,8 +143,8 @@ export class AuthenticationService {
     );
   }
 
-  refresh(req: Request): { accessToken: string } {
-    const accessToken = this.generateAccessToken(req.user);
+  refresh(user: TokenUserDto): { accessToken: string } {
+    const accessToken = this.generateAccessToken(user);
     return { accessToken };
   }
 
