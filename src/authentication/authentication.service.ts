@@ -6,10 +6,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserAuthDto } from './dto/UserAuthDto';
+import { UserAuthDto } from '../dto/UserAuthDto';
 import User from '../entities/User.entity';
 import * as bcrypt from 'bcrypt';
-import { UserTokenDataDto } from './dto/UserTokenDataDto';
 import { decode, Secret, sign } from 'jsonwebtoken';
 import Token from '../entities/Token.entity';
 import EmailExistsException from '../exceptions/EmailExistsException';
@@ -18,6 +17,7 @@ import WrongCredentialsException from '../exceptions/WrongCredentialsException';
 import { Request } from 'express';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { TokenUser } from 'src/@types';
+import { TokenUserDto } from 'src/dto/TokenUserDto';
 
 Injectable();
 export class AuthenticationService {
@@ -76,7 +76,7 @@ export class AuthenticationService {
       }
     }
 
-    const tokenData: UserTokenDataDto = {
+    const tokenData: TokenUserDto = {
       id: user.id,
       username: user.username,
       email: user.email,
@@ -120,7 +120,7 @@ export class AuthenticationService {
   }
 
   private generateToken(
-    user: UserTokenDataDto,
+    user: TokenUserDto,
     key: Secret,
     expiresIn: string = this.configService.get(AuthTypes.ACCESS_DURATION),
   ): string {
