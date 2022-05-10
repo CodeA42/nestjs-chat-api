@@ -1,4 +1,11 @@
-import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminService } from './Admin.service';
 import { Roles } from '../decorators/Roles.decorator';
 import { Authentication } from 'src/decorators/Authentication.decorator';
@@ -22,10 +29,9 @@ export class AdminController {
   @Roles('admin')
   @Authentication(AuthTypes.ACCESS)
   transferOwnership(
-    @Param('chatId') chat: ChatIdDto,
-    @Param('userId') userId: string,
+    @Param('chatId', ParseUUIDPipe) chatId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
   ) {
-    return chat.id;
-    // return this.adminService.transferOwnership(chat.id, userId);
+    return this.adminService.transferOwnership(chatId, userId);
   }
 }
