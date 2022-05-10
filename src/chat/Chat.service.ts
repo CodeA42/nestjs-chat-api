@@ -10,28 +10,36 @@ import { Repository } from 'typeorm';
 import User from 'src/entities/User.entity';
 import { TokenUser } from 'src/@types';
 import { InjectRepository } from '@nestjs/typeorm';
+import { hash } from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
+    private configService: ConfigService,
   ) {}
 
-  createChat(chatData: CreateChatDto, userId: string) {
-    return this.createNewChat(chatData.name, userId);
-  }
-
-  async createNewChat(chatName: string, adminId: string) {
-    const chat = new Chat();
-    chat.name = chatName;
-    chat.adminId = adminId;
-
+  async createChat(chatData: CreateChatDto, adminId: string) {
     try {
+      const chat = new Chat();
+      chat.name = chatData.name;
+      const hashedPassword: string = await hash(
+        chatData.password,
+        +this.configService.get<number>('SALT_ROUNDS'),
+      );
+      chat.password = hashedPassword;
+      chat.adminId = adminId;
+
       return await this.chatRepository.save(chat);
     } catch (e) {
       console.error(e);
       throw new InternalServerErrorException();
     }
+  }
+
+  async getAllChats() {
+    return await this.chatRepository.find();
   }
 
   async getChat(chatId: string): Promise<Chat> {
