@@ -1,36 +1,82 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import Chat from 'src/entities/Chat.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import User from 'src/entities/User.entity';
 import { NewPaswordDto } from 'src/dto/NewPasswordDto';
 import { ChatService } from './Chat.service';
+import { hash } from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
-    private chatService: ChatService,
+    private readonly chatService: ChatService,
+    private readonly configService: ConfigService,
   ) {}
 
-  deleteRoom(roomId: string) {
-    this.deleteChatRoom(roomId);
+  deleteRoom(id: string) {
+    this.chatRepository.delete({ id });
   }
 
-  deleteChatRoom(roomId: string) {
-    this.chatRepository.delete({ id: roomId });
-  }
-
-  async transferOwnership(roomId: string, userId: string) {
+  /**
+   * Transfers Admin priviledges to another User given Chat id and User id to whom the admin proviledges will go.
+   * @param roomId Chat id
+   * @param userId User to transfer admin to
+   * @returns Id of the chat room
+   */
+  async transferOwnership(roomId: string, userId: string): Promise<string> {
     const chat: Chat = await this.chatRepository.findOne({ id: roomId });
-
     chat.adminId = userId;
 
-    return this.chatRepository.save(chat);
+    const saved: Chat = await this.chatRepository.save(chat);
+    return saved.id;
   }
 
-  changePassword(roomId: string, newPasswordDto: NewPaswordDto) {
-    if (this.chatService.checkPassword(roomId, newPasswordDto.oldPassword)) {
+  /**
+   * Takes Chat id and an object with the old and new passward. If the old password matches the one in the database the password is updated.
+   * @param id Chat id
+   * @param newPasswordDto Object carrying the old and new passwords
+   * @returns The id of the chat room
+   */
+  async changePassword(
+    id: string,
+    newPasswordDto: NewPaswordDto,
+  ): Promise<string> {
+    if (await this.chatService.checkPassword(id, newPasswordDto.oldPassword)) {
+      return await this.updatePassword(id, newPasswordDto.newPassword);
+    }
+  }
+
+  /**
+   * Takes chat id and password and updates the password of the Chat Entity
+   * @param id Chat id
+   * @returns The id of the chat on success
+   */
+  async updatePassword(id: string, password: string): Promise<string> {
+    try {
+      let chat: Chat = await this.chatService.getChat(id);
+      if (chat) {
+        chat.password = await hash(
+          password,
+          +this.configService.get<number>('SALT_ROUNDS'),
+        );
+
+        chat = await this.chatRepository.save(chat);
+        return chat.id;
+      }
+      throw new NotFoundException();
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      console.error(e);
+      throw new InternalServerErrorException();
     }
   }
 }
