@@ -1,14 +1,8 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Req,
-  UseGuards,
-  UsePipes,
-} from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, Post, UseGuards, UsePipes } from '@nestjs/common';
+import { TokenUser } from 'src/@types';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { Authentication } from 'src/decorators/Authentication.decorator';
+import { User } from 'src/decorators/User.decorator';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { JoiValidationPipe } from 'src/validation/joi.validation';
 import { ChatService } from './Chat.service';
@@ -23,7 +17,7 @@ export class ChatController {
   @UsePipes(new JoiValidationPipe(createChatSchema))
   @Authentication(AuthTypes.ACCESS)
   @UseGuards(AuthenticationGuard)
-  createChat(@Body() newChatData: CreateChatDto, @Req() req: Request) {
-    this.chatService.createChat(newChatData, req);
+  createChat(@Body() newChatData: CreateChatDto, @User('id') userId: string) {
+    this.chatService.createChat(newChatData, userId);
   }
 }
