@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   Param,
   ParseUUIDPipe,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { AdminService } from './Admin.service';
@@ -12,7 +14,7 @@ import { Authentication } from 'src/decorators/Authentication.decorator';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
-import { ChatIdDto } from 'src/dto/ChatIdDto';
+import { NewPaswordDto } from 'src/dto/NewPasswordDto';
 
 @Controller('chat/:chatId/admin')
 @UseGuards(AuthenticationGuard, AuthorizationGurad)
@@ -33,5 +35,15 @@ export class AdminController {
     @Param('userId', ParseUUIDPipe) userId: string,
   ) {
     return this.adminService.transferOwnership(chatId, userId);
+  }
+
+  @Put('password')
+  @Roles('admin')
+  @Authentication(AuthTypes.ACCESS)
+  changePassword(
+    @Param('chatId', ParseUUIDPipe) chatId: string,
+    @Body() newPasswordDto: NewPaswordDto,
+  ) {
+    return this.adminService.changePassword(chatId, newPasswordDto);
   }
 }
