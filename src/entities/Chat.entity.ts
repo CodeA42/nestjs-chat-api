@@ -29,4 +29,9 @@ export default class Chat {
 
   @ManyToMany(() => User, (user) => user.chats)
   users: User[];
+
+  @Column({
+    type: 'text',
+  })
+  password: string;
 }
