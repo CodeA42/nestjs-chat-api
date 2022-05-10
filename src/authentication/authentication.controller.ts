@@ -10,7 +10,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/validation/joi.validation';
-import { UserAuthDto } from './dto/UserAuthDto';
+import { UserAuthDto } from '../dto/UserAuthDto';
 import createUserSchema from './validationSchemas/createUser.schema';
 import { AuthenticationService } from './authentication.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
