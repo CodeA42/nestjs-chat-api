@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   ManyToMany,
+  JoinColumn,
 } from 'typeorm';
 import User from './User.entity';
 
@@ -17,9 +18,13 @@ export default class Chat {
   })
   name: string;
 
+  @Column({ type: 'text' })
+  adminId: string;
+
   @ManyToOne(() => User, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'adminId' })
   admin: User;
 
   @ManyToMany(() => User, (user) => user.chats)
