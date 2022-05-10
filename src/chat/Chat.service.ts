@@ -5,14 +5,16 @@ import Chat from 'src/entities/Chat.entity';
 import { CreateChatDto } from './dto/CreateChatDto';
 import { Repository } from 'typeorm';
 import User from 'src/entities/User.entity';
+import { TokenUser } from 'src/@types';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
   ) {}
-  createChat(chatData: CreateChatDto, req: Request) {
-    this.createNewChat(chatData.name, req.user.id);
+
+  createChat(chatData: CreateChatDto, userId: string) {
+    this.createNewChat(chatData.name, userId);
   }
 
   createNewChat(chatName: string, adminId: unknown) {
