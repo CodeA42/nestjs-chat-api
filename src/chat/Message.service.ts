@@ -4,7 +4,7 @@ import Chat from 'src/entities/Chat.entity';
 import { Repository } from 'typeorm';
 import User from 'src/entities/User.entity';
 import Message from 'src/entities/Message.entity';
-import { CreateMessageDto } from './dto/CreateMessageDto';
+import { CreateMessageDto } from 'src/dto/CreateMessageDto';
 
 @Injectable()
 export class MessageService {
