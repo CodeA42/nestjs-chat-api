@@ -1,4 +1,4 @@
-import { IsAlphanumeric, IsNotEmpty, Max, Min } from 'class-validator';
+import { IsAlphanumeric, IsNotEmpty, Length, Max, Min } from 'class-validator';
 
 export class CreateChatDto {
   @IsNotEmpty()
@@ -6,7 +6,6 @@ export class CreateChatDto {
 
   @IsNotEmpty()
   @IsAlphanumeric()
-  @Min(4)
-  @Max(20)
+  @Length(4, 20)
   password: string;
 }
