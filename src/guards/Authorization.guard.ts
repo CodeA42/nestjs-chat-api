@@ -1,15 +1,29 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  Inject,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Request } from 'express';
+import { ChatService } from 'src/chat/Chat.service';
+import User from 'src/entities/User.entity';
 
 @Injectable()
 export class AuthorizationGurad implements CanActivate {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const req = context.switchToHttp().getRequest();
-    console.log(req);
-    console.log(context.getHandler());
+  constructor(
+    private reflector: Reflector,
+    @Inject(ChatService) private readonly chatService: ChatService,
+  ) {}
 
-    return false;
+  async canActivate(context: ExecutionContext) {
+    const req: Request = context.switchToHttp().getRequest();
+
+    const chatId: string = req.params.chatId;
+    const chatAdmin: User = await this.chatService.getChatAdmin(chatId);
+
+    const isAuthorized: boolean = chatAdmin.id === req.user.id;
+
+    return isAuthorized;
   }
 }
