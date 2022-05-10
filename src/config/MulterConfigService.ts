@@ -15,6 +15,7 @@ export class MulterConfigService implements MulterOptionsFactory {
 
   createMulterOptions(): MulterModuleOptions {
     return {
+      // dest: this.configService.get<string>('UPLOAD_LOCATION'),
       limits: {
         fileSize: +this.configService.get<number>('MAX_FILE_SIZE'),
       },
@@ -31,6 +32,7 @@ export class MulterConfigService implements MulterOptionsFactory {
         },
 
         filename: (req: any, file: any, cb: any) => {
+          console.log('filename()');
           cb(null, `${uuid()}${extname(file.originalname)}`);
         },
       }),
