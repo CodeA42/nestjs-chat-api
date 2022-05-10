@@ -19,6 +19,8 @@ import { Authentication } from 'src/decorators/Authentication.decorator';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { Cookies } from 'src/decorators/Cookies.decorator';
+import { User } from 'src/decorators/User.decorator';
+import { TokenUserDto } from 'src/dto/TokenUserDto';
 
 @Controller('')
 export class AuthenticationController {
@@ -48,8 +50,8 @@ export class AuthenticationController {
   @Get('refresh')
   @Authentication(AuthTypes.REFRESH)
   @UseGuards(AuthenticationGuard)
-  refresh(@Req() req: Request) {
-    return this.authenticationService.refresh(req);
+  refresh(@User() user: TokenUserDto) {
+    return this.authenticationService.refresh(user);
   }
 
   @Get('logout')
