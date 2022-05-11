@@ -1,7 +1,10 @@
 import {
+  CACHE_MANAGER,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import Chat from 'src/entities/Chat.entity';
 import { CreateChatDto } from '../dto/CreateChatDto';
@@ -10,12 +13,17 @@ import User from 'src/entities/User.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
+import { Cache } from 'cache-manager';
+import { ChatRoomKey } from 'src/@types';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
+    @InjectRepository(User) private userRepository: Repository<User>,
     private configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   /**
@@ -121,5 +129,35 @@ export class ChatService {
     const chat: Chat = await this.getChat(id);
 
     return await compare(password, chat.password);
+  }
+
+  /**
+   * Given a chat id, password and user id adds the user to the chat if the password is correct
+   * @returns uuidv4 string
+   */
+  async joinChat(
+    chatId: string,
+    password: string,
+    userId: string,
+  ): Promise<ChatRoomKey> {
+    const chat: Chat = await this.chatRepository.findOne({
+      where: { id: chatId },
+      select: ['password'],
+    });
+
+    if (await compare(password, chat.password)) {
+      const user: User = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+
+      chat.users.push(user);
+      await this.chatRepository.save(chat);
+      const uuid: string = uuidv4();
+
+      await this.cacheManager.set(`${chatId}-${userId}`, uuid, { ttl: 30 });
+
+      return { id: chatId, uuid };
+    }
+    throw new UnauthorizedException();
   }
 }
