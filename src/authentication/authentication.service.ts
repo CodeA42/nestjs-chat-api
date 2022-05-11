@@ -27,7 +27,7 @@ export class AuthenticationService {
     private configService: ConfigService,
   ) {}
 
-  async register(userAuthDto: UserAuthDto) {
+  async register(userAuthDto: UserAuthDto): Promise<{ id: string }> {
     try {
       await this.selectByEmail(userAuthDto.email);
       throw new EmailExistsException();
