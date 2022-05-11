@@ -56,10 +56,10 @@ export class ChatController {
 
   @Get('/:id/leave')
   @Authentication(AuthTypes.ACCESS)
-  leaveChat(
+  async leaveChat(
     @Param('id', ParseUUIDPipe) chatId: string,
     @User('id', ParseUUIDPipe) userId: string,
-  ) {
-    return this.chatService.leaveChat(chatId, userId);
+  ): Promise<{ id: string }> {
+    return { id: await this.chatService.leaveChat(chatId, userId) };
   }
 }
