@@ -6,7 +6,6 @@ import {
 import { Repository } from 'typeorm';
 import Chat from 'src/entities/Chat.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import User from 'src/entities/User.entity';
 import { NewPaswordDto } from 'src/dto/NewPasswordDto';
 import { ChatService } from './Chat.service';
 import { hash } from 'bcrypt';
