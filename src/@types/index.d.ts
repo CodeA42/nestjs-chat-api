@@ -21,3 +21,8 @@ export type TokenUser = {
   username: string;
   email: string;
 };
+
+export type ChatRoomKey = {
+  id: string;
+  uuid: string;
+};
