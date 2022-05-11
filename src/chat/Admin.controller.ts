@@ -16,20 +16,21 @@ import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
 import { NewPaswordDto } from 'src/dto/NewPasswordDto';
 import { UpdateChatDataDto } from 'src/dto/UpdateChatDataDto';
+import { RoleTypes } from 'src/@types/RoleTypes';
 
 @Controller('chat/:chatId/admin')
 @UseGuards(AuthenticationGuard, AuthorizationGurad)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
   @Delete('delete_room')
-  @Roles('admin')
+  @Roles(RoleTypes.ADMIN)
   @Authentication(AuthTypes.ACCESS)
   async getRoute(@Param('chatId') id: string): Promise<{ id: string }> {
     return { id: await this.adminService.deleteRoom(id) };
   }
 
   @Get('transfer/:userId')
-  @Roles('admin')
+  @Roles(RoleTypes.ADMIN)
   @Authentication(AuthTypes.ACCESS)
   async transferOwnership(
     @Param('chatId', ParseUUIDPipe) chatId: string,
@@ -39,7 +40,7 @@ export class AdminController {
   }
 
   @Put('password')
-  @Roles('admin')
+  @Roles(RoleTypes.ADMIN)
   @Authentication(AuthTypes.ACCESS)
   async changePassword(
     @Param('chatId', ParseUUIDPipe) chatId: string,
@@ -51,12 +52,22 @@ export class AdminController {
   }
 
   @Put('')
-  @Roles('admin')
+  @Roles(RoleTypes.ADMIN)
   @Authentication(AuthTypes.ACCESS)
   async updateRoom(
     @Param('chatId', ParseUUIDPipe) chatId: string,
     @Body() updateData: UpdateChatDataDto,
   ): Promise<{ id: string }> {
     return { id: await this.adminService.updateRoom(chatId, updateData) };
+  }
+
+  @Get('kick/:userId')
+  @Roles(RoleTypes.ADMIN)
+  @Authentication(AuthTypes.ACCESS)
+  kickUser(
+    @Param('chatId', ParseUUIDPipe) chatId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ) {
+    return this.adminService.kickUser(chatId, userId);
   }
 }
