@@ -30,12 +30,15 @@ export class AdminService {
    * @param userId User to transfer admin to
    * @returns Id of the chat room
    */
-  async transferOwnership(roomId: string, userId: string): Promise<string> {
+  async transferOwnership(
+    roomId: string,
+    userId: string,
+  ): Promise<{ id: string }> {
     const chat: Chat = await this.chatRepository.findOne({ id: roomId });
     chat.adminId = userId;
 
     const saved: Chat = await this.chatRepository.save(chat);
-    return saved.id;
+    return { id: saved.id };
   }
 
   /**
