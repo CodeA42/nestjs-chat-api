@@ -20,7 +20,13 @@ export class ChatService {
     private configService: ConfigService,
   ) {}
 
-  async createChat(chatData: CreateChatDto, adminId: string) {
+  /**
+   * Given chat data and user id creates a chat room with admin the given user
+   * @param chatData Chat data
+   * @param adminId Admin of the room
+   * @returns Id of the saved chat
+   */
+  async createChat(chatData: CreateChatDto, adminId: string): Promise<string> {
     try {
       const chat = new Chat();
       chat.name = chatData.name;
@@ -31,14 +37,18 @@ export class ChatService {
       chat.password = hashedPassword;
       chat.adminId = adminId;
 
-      return await this.chatRepository.save(chat);
+      const savedChat: Chat = await this.chatRepository.save(chat);
+      return savedChat.id;
     } catch (e) {
       console.error(e);
       throw new InternalServerErrorException();
     }
   }
 
-  async getAllChats() {
+  /**
+   * @returns Id and name of all chats
+   */
+  async getAllChats(): Promise<{ id: string; name: string }[]> {
     return await this.chatRepository.find({ select: ['id', 'name'] });
   }
 
@@ -62,7 +72,7 @@ export class ChatService {
   }
 
   /**
-   *Gets Chat Entity with Admin attached to it
+   *  Gets Chat Entity with Admin attached to it
    * @param id Chat id
    */
   async getChatWithAdmin(id: string): Promise<Chat> {
