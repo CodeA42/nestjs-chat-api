@@ -26,3 +26,13 @@ export type ChatRoomKey = {
   id: string;
   uuid: string;
 };
+
+export type KickedUser = {
+  chatId: string;
+  userId: string;
+};
+
+export type BlockedUserDuration = {
+  userId: string;
+  time: number;
+};
