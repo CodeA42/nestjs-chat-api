@@ -132,8 +132,8 @@ export class ChatService {
   }
 
   /**
-   * Given a chat id, password and user id adds the user to the chat if the password is correct
-   * @returns uuidv4 string
+   * Given a chat id, password and user id, adds the user to the chat if the password is correct
+   * @returns Uuid key and the chat for which it will work. The key will work for 30 seconds only
    */
   async joinChat(
     chatId: string,
@@ -142,7 +142,7 @@ export class ChatService {
   ): Promise<ChatRoomKey> {
     const chat: Chat = await this.chatRepository.findOne({
       where: { id: chatId },
-      select: ['password'],
+      relations: ['users'],
     });
 
     if (await compare(password, chat.password)) {
