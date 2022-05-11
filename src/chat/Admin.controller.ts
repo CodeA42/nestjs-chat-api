@@ -15,6 +15,7 @@ import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
 import { NewPaswordDto } from 'src/dto/NewPasswordDto';
+import { UpdateChatDataDto } from 'src/dto/UpdateChatDataDto';
 
 @Controller('chat/:chatId/admin')
 @UseGuards(AuthenticationGuard, AuthorizationGurad)
@@ -47,5 +48,15 @@ export class AdminController {
     return {
       id: await this.adminService.changePassword(chatId, newPasswordDto),
     };
+  }
+
+  @Put('')
+  @Roles('admin')
+  @Authentication(AuthTypes.ACCESS)
+  async updateRoom(
+    @Param('chatId', ParseUUIDPipe) chatId: string,
+    @Body() updateData: UpdateChatDataDto,
+  ): Promise<{ id: string }> {
+    return { id: await this.adminService.updateRoom(chatId, updateData) };
   }
 }

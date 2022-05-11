@@ -11,6 +11,7 @@ import { NewPaswordDto } from 'src/dto/NewPasswordDto';
 import { ChatService } from './Chat.service';
 import { hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { UpdateChatDataDto } from 'src/dto/UpdateChatDataDto';
 
 @Injectable()
 export class AdminService {
@@ -20,6 +21,11 @@ export class AdminService {
     private readonly configService: ConfigService,
   ) {}
 
+  /**
+   * Given a chat room id deletes the room and returns the room id on success.
+   * @param id Chat id
+   * @returns Id of the deleted chat room
+   */
   async deleteRoom(id: string): Promise<string> {
     try {
       await this.chatRepository.delete({ id });
@@ -48,7 +54,7 @@ export class AdminService {
    * Takes Chat id and an object with the old and new passward. If the old password matches the one in the database the password is updated.
    * @param id Chat id
    * @param newPasswordDto Object carrying the old and new passwords
-   * @returns The id of the chat room
+   * @returns Id of the chat room
    */
   async changePassword(
     id: string,
@@ -81,6 +87,24 @@ export class AdminService {
       if (e instanceof NotFoundException) {
         throw e;
       }
+      console.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  /**
+   * Given chat id updats room data (without password) and returns room id.
+   * @param id Chat id
+   * @returns Id of the chat room
+   */
+  async updateRoom(id: string, data: UpdateChatDataDto): Promise<string> {
+    try {
+      let chat: Chat = await this.chatService.getChat(id);
+      chat.name = data.name;
+
+      chat = await this.chatRepository.save(chat);
+      return chat.id;
+    } catch (e) {
       console.error(e);
       throw new InternalServerErrorException();
     }
