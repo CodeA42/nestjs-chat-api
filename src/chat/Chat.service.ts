@@ -185,10 +185,7 @@ export class ChatService {
    * @retuns Id of the room the user left. Id is returned even if the user was not in the room
    */
   async leaveChat(chatId: string, userId: string): Promise<string> {
-    const chat: Chat = await this.chatRepository.findOne({
-      where: { id: chatId },
-      relations: ['users'],
-    });
+    const chat: Chat = await this.getChatWithUsers(chatId);
 
     chat.users = chat.users.filter((user) => {
       return user.id !== userId;
@@ -206,10 +203,7 @@ export class ChatService {
    * @todo Currently passwords are returned as well
    */
   async getAllChatMembers(id: string): Promise<User[]> {
-    const chat: Chat = await this.chatRepository.findOne({
-      where: { id },
-      relations: ['users'],
-    });
+    const chat: Chat = await this.getChatWithUsers(id);
 
     return chat.users;
   }
