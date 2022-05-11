@@ -28,7 +28,7 @@ export class AuthenticationController {
 
   @Post('/register')
   @UsePipes(new JoiValidationPipe(createUserSchema))
-  register(@Body() userAuthDto: UserAuthDto): any {
+  register(@Body() userAuthDto: UserAuthDto): Promise<{ id: string }> {
     return this.authenticationService.register(userAuthDto);
   }
 
@@ -50,7 +50,7 @@ export class AuthenticationController {
   @Get('refresh')
   @Authentication(AuthTypes.REFRESH)
   @UseGuards(AuthenticationGuard)
-  refresh(@User() user: TokenUserDto) {
+  refresh(@User() user: TokenUserDto): { accessToken: string } {
     return this.authenticationService.refresh(user);
   }
 
