@@ -16,7 +16,6 @@ import { CreateChatDto } from '../dto/CreateChatDto';
 import { TokenUserDto } from 'src/dto/TokenUserDto';
 import Chat from 'src/entities/Chat.entity';
 import { chatPasswordDto } from 'src/dto/ChatPasswordDto';
-import { ChatRoomKey } from 'src/@types';
 import { Roles } from 'src/decorators/Roles.decorator';
 import { RoleTypes } from 'src/@types/RoleTypes';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
