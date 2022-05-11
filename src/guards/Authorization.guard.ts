@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { validate } from 'class-validator';
 import { Request } from 'express';
+import { RoleTypes } from 'src/@types/RoleTypes';
 import { ChatService } from 'src/chat/Chat.service';
 import { ChatIdDto } from 'src/dto/ChatIdDto';
 import User from 'src/entities/User.entity';
@@ -19,22 +20,48 @@ export class AuthorizationGurad implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req: Request = context.switchToHttp().getRequest();
+    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+
+    if (!roles) {
+      return true;
+    }
 
     let isAuthorized = false;
 
-    const chatIdDto = new ChatIdDto();
-    chatIdDto.id = req.params.chatId;
-    const validationErrors = await validate(chatIdDto);
+    const req: Request = context.switchToHttp().getRequest();
+    const chatId = req.params.chatId;
+    const userId = req.user.id;
 
-    if (validationErrors.length === 0) {
-      const chatAdmin: User = await this.chatService.getChatAdmin(chatIdDto.id);
+    if (await this.chatIdIsInvalid(chatId)) {
+      return false;
+    }
 
-      isAuthorized = chatAdmin.id === req.user.id;
-    } else {
-      isAuthorized = false;
+    if (roles.includes(RoleTypes.CHAT_MEMBER)) {
+      isAuthorized = await this.chatService.userIsMember(chatId, userId);
+    }
+
+    if (roles.includes(RoleTypes.ADMIN)) {
+      isAuthorized = await this.userIsAdminOfChat(chatId, userId);
     }
 
     return isAuthorized;
+  }
+
+  private async userIsAdminOfChat(
+    chatId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const chatAdmin: User = await this.chatService.getChatAdmin(chatId);
+    return chatAdmin.id === userId;
+  }
+
+  private async chatIdIsInvalid(id: string): Promise<boolean> {
+    const chatIdDto = new ChatIdDto();
+    chatIdDto.id = id;
+    const validationErrors = await validate(chatIdDto);
+    if (validationErrors.length === 0) {
+      return false;
+    }
+    return true;
   }
 }
