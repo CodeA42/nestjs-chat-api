@@ -23,27 +23,29 @@ export class AdminController {
   @Delete('delete_room')
   @Roles('admin')
   @Authentication(AuthTypes.ACCESS)
-  getRoute(@Param('chatId') id: string) {
-    return `Param: ${id}`;
+  async getRoute(@Param('chatId') id: string): Promise<{ id: string }> {
+    return { id: await this.adminService.deleteRoom(id) };
   }
 
   @Get('transfer/:userId')
   @Roles('admin')
   @Authentication(AuthTypes.ACCESS)
-  transferOwnership(
+  async transferOwnership(
     @Param('chatId', ParseUUIDPipe) chatId: string,
     @Param('userId', ParseUUIDPipe) userId: string,
-  ) {
-    return this.adminService.transferOwnership(chatId, userId);
+  ): Promise<{ id: string }> {
+    return { id: await this.adminService.transferOwnership(chatId, userId) };
   }
 
   @Put('password')
   @Roles('admin')
   @Authentication(AuthTypes.ACCESS)
-  changePassword(
+  async changePassword(
     @Param('chatId', ParseUUIDPipe) chatId: string,
     @Body() newPasswordDto: NewPaswordDto,
-  ) {
-    return this.adminService.changePassword(chatId, newPasswordDto);
+  ): Promise<{ id: string }> {
+    return {
+      id: await this.adminService.changePassword(chatId, newPasswordDto),
+    };
   }
 }

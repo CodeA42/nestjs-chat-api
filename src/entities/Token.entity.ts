@@ -8,7 +8,9 @@ export default class Token {
   })
   token: string;
 
-  @Column()
+  @Column({
+    type: 'bigint',
+  })
   exp: number;
 
   @Column({
