@@ -5,6 +5,7 @@ import {
   ManyToOne,
   ManyToMany,
   JoinColumn,
+  JoinTable,
 } from 'typeorm';
 import User from './User.entity';
 
@@ -28,6 +29,7 @@ export default class Chat {
   admin: User;
 
   @ManyToMany(() => User, (user) => user.chats)
+  @JoinTable()
   users: User[];
 
   @Column({
