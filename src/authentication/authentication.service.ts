@@ -14,7 +14,6 @@ import Token from '../entities/Token.entity';
 import EmailExistsException from '../exceptions/EmailExistsException';
 import UsernameExistsException from '../exceptions/UsernameExistsException';
 import WrongCredentialsException from '../exceptions/WrongCredentialsException';
-import { Request } from 'express';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { TokenUser } from 'src/@types';
 import { TokenUserDto } from 'src/dto/TokenUserDto';
