@@ -182,12 +182,16 @@ export class ChatService {
     return chatId;
   }
 
-  async getAllChatMembers(id: string) {
+  /**
+   * @returns A list of all chat members
+   * @todo Currently passwords are returned as well
+   */
+  async getAllChatMembers(id: string): Promise<User[]> {
     const chat: Chat = await this.chatRepository.findOne({
       where: { id },
       relations: ['users'],
     });
 
-    return chat;
+    return chat.users;
   }
 }
