@@ -34,14 +34,17 @@ export class ChatService {
    */
   async createChat(chatData: CreateChatDto, adminId: string): Promise<string> {
     try {
-      const chat = new Chat();
-      chat.name = chatData.name;
       const hashedPassword: string = await hash(
         chatData.password,
         +this.configService.get<number>('SALT_ROUNDS'),
       );
+      const user: User = await this.userRepository.findOne(adminId);
+
+      const chat = new Chat();
+      chat.name = chatData.name;
       chat.password = hashedPassword;
-      chat.adminId = adminId;
+      chat.admin = user;
+      chat.users = [user];
 
       const savedChat: Chat = await this.chatRepository.save(chat);
       return savedChat.id;
@@ -140,10 +143,7 @@ export class ChatService {
     password: string,
     userId: string,
   ): Promise<ChatRoomKey> {
-    const chat: Chat = await this.chatRepository.findOne({
-      where: { id: chatId },
-      relations: ['users'],
-    });
+    const chat: Chat = await this.getChatWithUsers(chatId);
 
     if (await compare(password, chat.password)) {
       const user: User = await this.userRepository.findOne({
@@ -159,6 +159,25 @@ export class ChatService {
       return { id: chatId, uuid };
     }
     throw new UnauthorizedException();
+  }
+
+  async getChatWithUsers(id: string) {
+    try {
+      const chat: Chat = await this.chatRepository.findOne({
+        where: { id },
+        relations: ['users'],
+      });
+      if (chat) {
+        return chat;
+      }
+      throw new NotFoundException();
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      console.error(e);
+      throw new InternalServerErrorException();
+    }
   }
 
   /**
