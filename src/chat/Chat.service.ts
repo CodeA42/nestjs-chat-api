@@ -160,4 +160,25 @@ export class ChatService {
     }
     throw new UnauthorizedException();
   }
+
+  /**
+   * Requesting user is removed from the chat. Active auth keys are also removed
+   * @retuns Id of the room the user left. Id is returned even if the user was not in the room
+   */
+  async leaveChat(chatId: string, userId: string): Promise<string> {
+    const chat: Chat = await this.chatRepository.findOne({
+      where: { id: chatId },
+      relations: ['users'],
+    });
+
+    chat.users.filter((user) => {
+      return user.id !== userId;
+    });
+
+    await this.chatRepository.save(chat);
+
+    await this.cacheManager.del(`${chatId}-${userId}`);
+
+    return chatId;
+  }
 }
