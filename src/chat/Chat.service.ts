@@ -171,7 +171,7 @@ export class ChatService {
       relations: ['users'],
     });
 
-    chat.users.filter((user) => {
+    chat.users = chat.users.filter((user) => {
       return user.id !== userId;
     });
 
@@ -180,5 +180,14 @@ export class ChatService {
     await this.cacheManager.del(`${chatId}-${userId}`);
 
     return chatId;
+  }
+
+  async getAllChatMembers(id: string) {
+    const chat: Chat = await this.chatRepository.findOne({
+      where: { id },
+      relations: ['users'],
+    });
+
+    return chat;
   }
 }
