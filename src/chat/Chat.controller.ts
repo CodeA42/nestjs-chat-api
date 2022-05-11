@@ -18,6 +18,7 @@ import Chat from 'src/entities/Chat.entity';
 import { chatPasswordDto } from 'src/dto/ChatPasswordDto';
 import { ChatRoomKey } from 'src/@types';
 import { Roles } from 'src/decorators/Roles.decorator';
+import { RoleTypes } from 'src/@types/RoleTypes';
 
 @Controller('chat')
 @UseGuards(AuthenticationGuard)
@@ -66,7 +67,7 @@ export class ChatController {
 
   @Get('/:chatId/users')
   @Authentication(AuthTypes.ACCESS)
-  @Roles('chatMember')
+  @Roles(RoleTypes.CHAT_MEMBER)
   getAllChatMembers(@Param('chatId', ParseUUIDPipe) id: string) {
     return this.chatService.getAllChatMembers(id);
   }
