@@ -3,12 +3,10 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Request } from 'express';
 import Chat from 'src/entities/Chat.entity';
 import { CreateChatDto } from '../dto/CreateChatDto';
 import { Repository } from 'typeorm';
 import User from 'src/entities/User.entity';
-import { TokenUser } from 'src/@types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
