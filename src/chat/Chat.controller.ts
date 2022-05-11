@@ -48,13 +48,12 @@ export class ChatController {
 
   @Post('/:chatId/join')
   @Authentication(AuthTypes.ACCESS)
-  async joinChat(
+  joinChat(
     @Param('chatId', ParseUUIDPipe) chatId: string,
     @Body() password: chatPasswordDto,
     @User('id', ParseUUIDPipe) userId: string,
   ) {
-    await this.chatService.joinChat(chatId, password.password, userId);
-    return;
+    return this.chatService.joinChat(chatId, password.password, userId);
   }
 
   @Get('/:chatId/leave')

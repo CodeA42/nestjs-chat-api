@@ -154,7 +154,7 @@ export class ChatService {
       await this.chatRepository.save(chat);
       const uuid: string = uuidv4();
 
-      await this.cacheManager.set(`${chatId}-${userId}`, uuid, { ttl: 30 });
+      await this.cacheManager.set(`${chatId}-${userId}`, uuid, { ttl: 5 });
 
       return { id: chatId, uuid };
     }
