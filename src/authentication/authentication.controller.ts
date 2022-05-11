@@ -4,7 +4,6 @@ import {
   Get,
   Headers,
   Post,
-  Req,
   Res,
   UseGuards,
   UsePipes,
@@ -14,7 +13,7 @@ import { UserAuthDto } from '../dto/UserAuthDto';
 import createUserSchema from './validationSchemas/createUser.schema';
 import { AuthenticationService } from './authentication.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { Authentication } from 'src/decorators/Authentication.decorator';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
