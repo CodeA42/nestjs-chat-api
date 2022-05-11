@@ -37,7 +37,7 @@ export class AuthorizationGurad implements CanActivate {
     }
 
     if (roles.includes(RoleTypes.CHAT_MEMBER)) {
-      isAuthorized = await this.chatService.userIsMember(chatId, userId);
+      isAuthorized = await this.userIsMember(chatId, userId);
     }
 
     if (roles.includes(RoleTypes.ADMIN)) {
@@ -45,6 +45,12 @@ export class AuthorizationGurad implements CanActivate {
     }
 
     return isAuthorized;
+  }
+
+  private async userIsMember(chatId: string, userId: string): Promise<boolean> {
+    const users: User[] = await this.chatService.getAllChatMembers(chatId);
+
+    return users.some((e) => e.id == userId);
   }
 
   private async userIsAdminOfChat(
