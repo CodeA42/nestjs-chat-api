@@ -49,8 +49,17 @@ export class ChatController {
   joinChat(
     @Param('id', ParseUUIDPipe) chatId: string,
     @Body() password: chatPasswordDto,
-    @User('id') userId: string,
+    @User('id', ParseUUIDPipe) userId: string,
   ): Promise<ChatRoomKey> {
     return this.chatService.joinChat(chatId, password.password, userId);
+  }
+
+  @Get('/:id/leave')
+  @Authentication(AuthTypes.ACCESS)
+  leaveChat(
+    @Param('id', ParseUUIDPipe) chatId: string,
+    @User('id', ParseUUIDPipe) userId: string,
+  ) {
+    return this.chatService.leaveChat(chatId, userId);
   }
 }
