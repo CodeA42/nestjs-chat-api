@@ -30,7 +30,6 @@ import Message from './entities/Message.entity';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'static'),
     }),
-    CacheModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],
