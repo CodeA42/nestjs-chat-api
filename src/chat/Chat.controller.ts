@@ -15,6 +15,8 @@ import { ChatService } from './Chat.service';
 import { CreateChatDto } from '../dto/CreateChatDto';
 import { TokenUserDto } from 'src/dto/TokenUserDto';
 import Chat from 'src/entities/Chat.entity';
+import { chatPasswordDto } from 'src/dto/ChatPasswordDto';
+import { ChatRoomKey } from 'src/@types';
 
 @Controller('chat')
 @UseGuards(AuthenticationGuard)
@@ -40,5 +42,15 @@ export class ChatController {
   @Authentication(AuthTypes.ACCESS)
   getChatRoom(@Param('id', ParseUUIDPipe) id: string): Promise<Chat> {
     return this.chatService.getChat(id);
+  }
+
+  @Post('/:id/join')
+  @Authentication(AuthTypes.ACCESS)
+  joinChat(
+    @Param('id', ParseUUIDPipe) chatId: string,
+    @Body() password: chatPasswordDto,
+    @User('id') userId: string,
+  ): Promise<ChatRoomKey> {
+    return this.chatService.joinChat(chatId, password.password, userId);
   }
 }
