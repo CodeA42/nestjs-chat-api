@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,7 +11,12 @@ import { ChatGateway } from './chat.gateway';
 import { ChatService } from './Chat.service';
 
 @Module({
-  imports: [ConfigModule, MulterModule, TypeOrmModule.forFeature([Chat, User])],
+  imports: [
+    ConfigModule,
+    MulterModule,
+    TypeOrmModule.forFeature([Chat, User]),
+    CacheModule.register(),
+  ],
   controllers: [ChatController, AdminController],
   providers: [ChatGateway, ChatService, AdminService],
 })
