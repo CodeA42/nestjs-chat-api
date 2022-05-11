@@ -17,6 +17,7 @@ import { TokenUserDto } from 'src/dto/TokenUserDto';
 import Chat from 'src/entities/Chat.entity';
 import { chatPasswordDto } from 'src/dto/ChatPasswordDto';
 import { ChatRoomKey } from 'src/@types';
+import { Roles } from 'src/decorators/Roles.decorator';
 
 @Controller('chat')
 @UseGuards(AuthenticationGuard)
@@ -38,28 +39,35 @@ export class ChatController {
     return this.chatService.getAllChats();
   }
 
-  @Get('/:id')
+  @Get('/:chatId')
   @Authentication(AuthTypes.ACCESS)
-  getChatRoom(@Param('id', ParseUUIDPipe) id: string): Promise<Chat> {
+  getChatRoom(@Param('chatId', ParseUUIDPipe) id: string): Promise<Chat> {
     return this.chatService.getChat(id);
   }
 
-  @Post('/:id/join')
+  @Post('/:chatId/join')
   @Authentication(AuthTypes.ACCESS)
   joinChat(
-    @Param('id', ParseUUIDPipe) chatId: string,
+    @Param('chatId', ParseUUIDPipe) chatId: string,
     @Body() password: chatPasswordDto,
     @User('id', ParseUUIDPipe) userId: string,
   ): Promise<ChatRoomKey> {
     return this.chatService.joinChat(chatId, password.password, userId);
   }
 
-  @Get('/:id/leave')
+  @Get('/:chatId/leave')
   @Authentication(AuthTypes.ACCESS)
   async leaveChat(
-    @Param('id', ParseUUIDPipe) chatId: string,
+    @Param('chatId', ParseUUIDPipe) chatId: string,
     @User('id', ParseUUIDPipe) userId: string,
   ): Promise<{ id: string }> {
     return { id: await this.chatService.leaveChat(chatId, userId) };
+  }
+
+  @Get('/:chatId/users')
+  @Authentication(AuthTypes.ACCESS)
+  @Roles('chatMember')
+  getAllChatMembers(@Param('chatId', ParseUUIDPipe) id: string) {
+    return this.chatService.getAllChatMembers(id);
   }
 }
