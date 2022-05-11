@@ -44,6 +44,10 @@ export class AuthorizationGurad implements CanActivate {
       isAuthorized = await this.userIsAdminOfChat(chatId, userId);
     }
 
+    if (roles.includes(RoleTypes.NOT_ADMIN)) {
+      isAuthorized = !(await this.userIsAdminOfChat(chatId, userId));
+    }
+
     return isAuthorized;
   }
 
