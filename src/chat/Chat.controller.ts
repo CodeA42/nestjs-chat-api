@@ -19,9 +19,10 @@ import { chatPasswordDto } from 'src/dto/ChatPasswordDto';
 import { ChatRoomKey } from 'src/@types';
 import { Roles } from 'src/decorators/Roles.decorator';
 import { RoleTypes } from 'src/@types/RoleTypes';
+import { AuthorizationGurad } from 'src/guards/Authorization.guard';
 
 @Controller('chat')
-@UseGuards(AuthenticationGuard)
+@UseGuards(AuthenticationGuard, AuthorizationGurad)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
@@ -48,21 +49,24 @@ export class ChatController {
 
   @Post('/:chatId/join')
   @Authentication(AuthTypes.ACCESS)
-  joinChat(
+  async joinChat(
     @Param('chatId', ParseUUIDPipe) chatId: string,
     @Body() password: chatPasswordDto,
     @User('id', ParseUUIDPipe) userId: string,
-  ): Promise<ChatRoomKey> {
-    return this.chatService.joinChat(chatId, password.password, userId);
+  ) {
+    await this.chatService.joinChat(chatId, password.password, userId);
+    return;
   }
 
   @Get('/:chatId/leave')
   @Authentication(AuthTypes.ACCESS)
+  @Roles(RoleTypes.NOT_ADMIN)
   async leaveChat(
     @Param('chatId', ParseUUIDPipe) chatId: string,
     @User('id', ParseUUIDPipe) userId: string,
-  ): Promise<{ id: string }> {
-    return { id: await this.chatService.leaveChat(chatId, userId) };
+  ) {
+    await this.chatService.leaveChat(chatId, userId);
+    return;
   }
 
   @Get('/:chatId/users')
