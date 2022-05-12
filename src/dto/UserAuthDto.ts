@@ -1,7 +1,13 @@
-import { IsAlphanumeric, IsEmail, IsNotEmpty } from 'class-validator';
+import {
+  IsAlphanumeric,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+} from 'class-validator';
 
 export class UserAuthDto {
   @IsAlphanumeric()
+  @IsOptional()
   username: string;
 
   @IsNotEmpty()
@@ -9,5 +15,6 @@ export class UserAuthDto {
   password: string;
 
   @IsEmail()
+  @IsOptional()
   email: string;
 }
