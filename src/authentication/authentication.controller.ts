@@ -14,11 +14,11 @@ import createUserSchema from './validationSchemas/createUser.schema';
 import { AuthenticationService } from './authentication.service';
 import loginUserSchema from './validationSchemas/loginUser.schema';
 import { Response } from 'express';
-import { Authentication } from 'src/decorators/Authentication.decorator';
+import { Authentication } from 'src/decorators/authentication.decorator';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
-import { Cookies } from 'src/decorators/Cookies.decorator';
-import { User } from 'src/decorators/User.decorator';
+import { Cookies } from 'src/decorators/cookies.decorator';
+import { User } from 'src/decorators/user.decorator';
 import { TokenUserDto } from 'src/dto/TokenUserDto';
 
 @Controller('')
