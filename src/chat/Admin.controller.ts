@@ -17,6 +17,7 @@ import { AuthorizationGurad } from 'src/guards/Authorization.guard';
 import { NewPaswordDto } from 'src/dto/NewPasswordDto';
 import { UpdateChatDataDto } from 'src/dto/UpdateChatDataDto';
 import { RoleTypes } from 'src/@types/RoleTypes';
+import Chat from 'src/entities/Chat.entity';
 
 @Controller('chat/:chatId/admin')
 @UseGuards(AuthenticationGuard, AuthorizationGurad)
@@ -29,14 +30,15 @@ export class AdminController {
     return { id: await this.adminService.deleteRoom(id) };
   }
 
-  @Get('transfer/:userId')
+  @Get('transfer_ownership/:userId')
   @Roles(RoleTypes.ADMIN)
   @Authentication(AuthTypes.ACCESS)
   async transferOwnership(
     @Param('chatId', ParseUUIDPipe) chatId: string,
     @Param('userId', ParseUUIDPipe) userId: string,
-  ): Promise<{ id: string }> {
-    return { id: await this.adminService.transferOwnership(chatId, userId) };
+  ) {
+    await this.adminService.transferOwnership(chatId, userId);
+    return;
   }
 
   @Put('password')
@@ -57,8 +59,8 @@ export class AdminController {
   async updateRoom(
     @Param('chatId', ParseUUIDPipe) chatId: string,
     @Body() updateData: UpdateChatDataDto,
-  ): Promise<{ id: string }> {
-    return { id: await this.adminService.updateRoom(chatId, updateData) };
+  ): Promise<Chat> {
+    return await this.adminService.updateRoom(chatId, updateData);
   }
 
   @Get('kick/:userId')
