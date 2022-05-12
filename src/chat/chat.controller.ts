@@ -8,15 +8,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthTypes } from 'src/@types/AuthTypes';
-import { Authentication } from 'src/decorators/Authentication.decorator';
-import { User } from 'src/decorators/User.decorator';
+import { Authentication } from 'src/decorators/authentication.decorator';
+import { User } from 'src/decorators/user.decorator';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
-import { ChatService } from './Chat.service';
+import { ChatService } from './chat.service';
 import { CreateChatDto } from '../dto/CreateChatDto';
 import { TokenUserDto } from 'src/dto/TokenUserDto';
 import Chat from 'src/entities/Chat.entity';
 import { chatPasswordDto } from 'src/dto/ChatPasswordDto';
-import { Roles } from 'src/decorators/Roles.decorator';
+import { Roles } from 'src/decorators/roles.decorator';
 import { RoleTypes } from 'src/@types/RoleTypes';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
 
