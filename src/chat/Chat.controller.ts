@@ -43,7 +43,7 @@ export class ChatController {
   @Get('/:chatId')
   @Authentication(AuthTypes.ACCESS)
   getChatRoom(@Param('chatId', ParseUUIDPipe) id: string): Promise<Chat> {
-    return this.chatService.getChat(id);
+    return this.chatService.getChatWithoutPassword(id);
   }
 
   @Post('/:chatId/join')
