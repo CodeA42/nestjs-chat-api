@@ -8,9 +8,9 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { AdminService } from './Admin.service';
-import { Roles } from '../decorators/Roles.decorator';
-import { Authentication } from 'src/decorators/Authentication.decorator';
+import { AdminService } from './admin.service';
+import { Roles } from '../decorators/roles.decorator';
+import { Authentication } from 'src/decorators/authentication.decorator';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
