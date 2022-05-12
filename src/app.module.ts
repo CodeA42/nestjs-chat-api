@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import Token from './entities/Token.entity';
 import User from './entities/User.entity';
 import { AuthenticationModule } from './authentication/authentication.module';
-import { ChatModule } from './chat/Chat.module';
+import { ChatModule } from './chat/chat.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import Chat from './entities/Chat.entity';
