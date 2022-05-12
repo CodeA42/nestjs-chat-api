@@ -4,11 +4,11 @@ import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Chat from 'src/entities/Chat.entity';
 import User from 'src/entities/User.entity';
-import { AdminController } from './Admin.controller';
-import { AdminService } from './Admin.service';
-import { ChatController } from './Chat.controller';
-import { ChatGateway } from './Chat.gateway';
-import { ChatService } from './Chat.service';
+import { AdminController } from './admin.controller';
+import { AdminService } from './admin.service';
+import { ChatController } from './chat.controller';
+import { ChatGateway } from './chat.gateway';
+import { ChatService } from './chat.service';
 
 @Module({
   imports: [
