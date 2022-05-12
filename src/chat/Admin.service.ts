@@ -99,15 +99,16 @@ export class AdminService {
   /**
    * Given chat id updats room data (without password) and returns room id.
    * @param id Chat id
-   * @returns Id of the chat room
+   * @returns The chat room without password field
    */
-  async updateRoom(id: string, data: UpdateChatDataDto): Promise<string> {
+  async updateRoom(id: string, data: UpdateChatDataDto): Promise<Chat> {
     try {
       let chat: Chat = await this.chatService.getChat(id);
       chat.name = data.name;
 
       chat = await this.chatRepository.save(chat);
-      return chat.id;
+      delete chat.password;
+      return chat;
     } catch (e) {
       console.error(e);
       throw new InternalServerErrorException();
