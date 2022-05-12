@@ -81,6 +81,15 @@ export class ChatService {
   }
 
   /**
+   * @returns Chat without password
+   */
+  async getChatWithoutPassword(id: string): Promise<Chat> {
+    const chat: Chat = await this.getChat(id);
+    delete chat.password;
+    return chat;
+  }
+
+  /**
    *  Gets Chat Entity with Admin attached to it
    * @param id Chat id
    */
