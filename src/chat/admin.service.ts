@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import Chat from 'src/entities/Chat.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewPaswordDto } from 'src/dto/NewPasswordDto';
-import { ChatService } from './Chat.service';
+import { ChatService } from './chat.service';
 import { hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { UpdateChatDataDto } from 'src/dto/UpdateChatDataDto';
