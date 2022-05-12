@@ -58,7 +58,7 @@
         sendChatMessage() {
           //Check if user is member of active room
           if(this.isMemberOfActiveRoom) {
-            this.socket.chat.emit('messageToServer', { sender: this.username, room: this.activeRoom ,message: this.text});
+            this.socket.chat.emit('messageFromClient', { sender: this.username, room: this.activeRoom ,message: this.text});
           } else {
             alert('You must be a member of the active room to send messages');
           }
@@ -82,8 +82,8 @@
       created() {
         this.username = prompt('Enter your username: ');
 
-        this.socket.chat = io('http://localhost:80/chat');
-        this.socket.chat.on('messageToClient', (msg) => {
+        this.socket.chat = io('wss://localhost:80/chat', {auth: { uuid: "1233" }});
+        this.socket.chat.on('messageFromServer', (msg) => {
           this.receiveChatMessage(msg);
         })
 
@@ -95,7 +95,7 @@
           this.rooms[room] = true;
         });
         
-        this.socket.chat.on('leftROom', (room) => {
+        this.socket.chat.on('leftRoom', (room) => {
           this.rooms[room] = false;
         });
 
