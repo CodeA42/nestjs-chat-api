@@ -7,7 +7,7 @@ import User from 'src/entities/User.entity';
 import { AdminController } from './Admin.controller';
 import { AdminService } from './Admin.service';
 import { ChatController } from './Chat.controller';
-import { ChatGateway } from './chat.gateway';
+import { ChatGateway } from './Chat.gateway';
 import { ChatService } from './Chat.service';
 
 @Module({
