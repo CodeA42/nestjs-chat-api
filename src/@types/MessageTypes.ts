@@ -5,4 +5,6 @@ export class MessageTypes {
   static LEFT_ROOM = 'leftRoom';
   static MESSAGE_FROM_CLIENT = 'messageFromClient';
   static MESSAGE_FROM_SERVER = 'messageFromServer';
+  static DISCONNECT = 'disconnect';
+  static CONNECTION = 'connection';
 }
