@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { validate } from 'class-validator';
 import { Request } from 'express';
 import { RoleTypes } from 'src/@types/RoleTypes';
-import { ChatService } from 'src/chat/Chat.service';
+import { ChatService } from 'src/chat/chat.service';
 import { ChatIdDto } from 'src/dto/ChatIdDto';
 import User from 'src/entities/User.entity';
 
