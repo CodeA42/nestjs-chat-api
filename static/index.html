@@ -124,6 +124,10 @@
           console.log(data);
           this.socket.chat.disconnect();
         })
+
+        this.socket.chat.on('improperMessageFormat', (data) => {
+          console.log(data);
+        })
       }
     })
   </script>
