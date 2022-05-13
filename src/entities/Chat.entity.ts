@@ -34,6 +34,7 @@ export default class Chat {
 
   @Column({
     type: 'text',
+    nullable: true,
   })
   password: string;
 }
