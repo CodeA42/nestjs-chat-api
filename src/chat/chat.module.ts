@@ -10,6 +10,7 @@ import { AdminService } from './admin.service';
 import { ChatController } from './chat.controller';
 import { ChatGateway } from './chat.gateway';
 import { ChatService } from './chat.service';
+import { GatewayService } from './gateway.service';
 import { MessageService } from './message.service';
 
 @Module({
@@ -20,6 +21,12 @@ import { MessageService } from './message.service';
     CacheModule.register(),
   ],
   controllers: [ChatController, AdminController],
-  providers: [ChatGateway, ChatService, AdminService, MessageService],
+  providers: [
+    ChatGateway,
+    ChatService,
+    AdminService,
+    MessageService,
+    GatewayService,
+  ],
 })
 export class ChatModule {}
