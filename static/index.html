@@ -19,8 +19,8 @@
       <input type="text" v-model="text">
       <button type="submit" @click.prevent="sendChatMessage()">Send</button>
     </form>
-    <div class="tab-row">
-      <button class="tab-btn" :class="{ active: activeRoom == 'general' }" @click="activeRoom = 'general'">General</button>
+    <div class="tab-row" id="buttons-group">
+      <button class="tab-btn" :class="{ active: activeRoom == '73b5fc85-554a-4fde-9ff8-ca36fab54d5d' }" @click="activeRoom = '73b5fc85-554a-4fde-9ff8-ca36fab54d5d'">General</button>
       <button class="tab-btn" :class="{ active: activeRoom == 'typescript' }" @click="activeRoom = 'typescript'">TypeScript</button>
       <button class="tab-btn" :class="{ active: activeRoom == 'nestjs' }" @click="activeRoom = 'nestjs'">NestJS</button>
     </div>
@@ -40,19 +40,21 @@
       el: '#v-app',
       data: {
         username: '',
+        id: '',
         text: '',
         messages: {
           general: [],
           typescript: [],
           nestjs: [],
         },
-        rooms: {
-          general: false,
-          typescript: false,
-          nestjs: false,
-        },
+        // rooms: {
+        //   general: false,
+        //   typescript: false,
+        //   nestjs: false,
+        // },
+        rooms: [],
         socket: { chat: null },
-        activeRoom: 'general'
+        activeRoom: ''
       },
       methods: {
         sendChatMessage() {
@@ -64,6 +66,7 @@
           }
         },
         receiveChatMessage(msg) {
+          // this.$set()
           this.messages[this.activeRoom].push(msg);
         },
         toggleRoomMembership() {
@@ -76,22 +79,40 @@
       },
       computed: {
         isMemberOfActiveRoom() {
+          console.log(`Active room: ${this.activeRoom}`);
           return this.rooms[this.activeRoom];
         }
       },
-      created() {
+      async created() {
         this.username = prompt('Enter your username: ');
 
-        this.socket.chat = io('wss://localhost:80/chat', {auth: { uuid: "1233" }});
+        const rooms = await fetch('http://localhost:3000/chat/', { 
+          headers: { //user mark
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiZjIyZDk3M2YtNzgwNC00MWY1LTk5ZDMtYjY5ODJhNmRmOGEyIiwidXNlcm5hbWUiOiJtYXJrIiwiZW1haWwiOiJvaEBoaS5jb20ifSwiaWF0IjoxNjUyMzQyOTU4LCJleHAiOjI1MTYzNDI5NTh9.k4dcLL3EZfnRLj5zA304vPuESxY9gw0pdIH6pjs2_oA' 
+          }
+        }).then(response => response.json());
+        
+        rooms.forEach(room => {
+          this.$set(this.messages, room.id, []);
+          this.rooms[room.id] = false;
+        });
+
+        this.socket.chat = io('ws://localhost:80/chat', {auth: { 
+          chatId: '73b5fc85-554a-4fde-9ff8-ca36fab54d5d', 
+          userId: 'f22d973f-7804-41f5-99d3-b6982a6df8a2', 
+          uuid: "83ee2406-4bf8-4fa4-8a45-18f46483df2c" }});
+        
         this.socket.chat.on('messageFromServer', (msg) => {
           this.receiveChatMessage(msg);
         })
 
         this.socket.chat.on('connect', () => {
+          console.log(this.socket.chat.rooms);
           this.toggleRoomMembership();
         })
 
         this.socket.chat.on('joinedRoom', (room) => {
+          console.log(`Joined Room: ${room}`);
           this.rooms[room] = true;
         });
         
@@ -99,7 +120,10 @@
           this.rooms[room] = false;
         });
 
-
+        this.socket.chat.on('disconnect', (data) => {
+          console.log(data);
+          this.socket.chat.disconnect();
+        })
       }
     })
   </script>
