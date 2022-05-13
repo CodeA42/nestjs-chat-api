@@ -1,4 +1,4 @@
-export class MessageTypes {
+export class Events {
   static JOIN_ROOM = 'joinRoom';
   static JOINED_ROOM = 'joinedRoom';
   static LEAVE_ROOM = 'leaveRoom';
