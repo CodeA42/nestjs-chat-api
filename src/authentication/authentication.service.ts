@@ -17,18 +17,19 @@ import WrongCredentialsException from '../exceptions/WrongCredentialsException';
 import { AuthTypes } from 'src/@types/AuthTypes';
 import { TokenUser } from 'src/@types';
 import { TokenUserDto } from 'src/dto/TokenUserDto';
+import { UserService } from 'src/user/user.service';
 
 Injectable();
 export class AuthenticationService {
   constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Token) private tokensRepository: Repository<Token>,
     private configService: ConfigService,
+    private userService: UserService,
   ) {}
 
   async register(userAuthDto: UserAuthDto): Promise<{ id: string }> {
     try {
-      await this.selectByEmail(userAuthDto.email);
+      await this.userService.selectByEmail(userAuthDto.email);
       throw new EmailExistsException();
     } catch (e) {
       if (e instanceof NotFoundException) {
@@ -41,7 +42,7 @@ export class AuthenticationService {
     }
 
     try {
-      await this.selectByUsername(userAuthDto.username);
+      await this.userService.selectByUsername(userAuthDto.username);
       throw new UsernameExistsException();
     } catch (e) {
       if (e instanceof NotFoundException) {
@@ -64,10 +65,10 @@ export class AuthenticationService {
     let user: User;
     try {
       if (userAuthDto.email) {
-        user = await this.selectByEmail(userAuthDto.email);
+        user = await this.userService.selectByEmail(userAuthDto.email);
       }
       if (userAuthDto.username) {
-        user = await this.selectByUsername(userAuthDto.username);
+        user = await this.userService.selectByUsername(userAuthDto.username);
       }
     } catch (e) {
       if (e instanceof NotFoundException) {
@@ -162,50 +163,11 @@ export class AuthenticationService {
       userAuthDto.password,
       Number(this.configService.get<number>('SALT_ROUNDS')),
     );
-    return await this.insertUser(
+    return await this.userService.insertUser(
       userAuthDto.username,
       hashedPassword,
       userAuthDto.email,
     );
-  }
-
-  private async insertUser(username: string, password: string, email: string) {
-    const user = new User();
-    user.username = username;
-    user.password = password;
-    user.email = email;
-
-    return await this.usersRepository.save(user);
-  }
-
-  private async selectByEmail(email: string): Promise<User | null> {
-    try {
-      const user: User = await this.usersRepository.findOne({
-        where: {
-          email,
-        },
-      });
-      if (user) return user;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-    throw new NotFoundException();
-  }
-
-  private async selectByUsername(username: string): Promise<User | null> {
-    try {
-      const user: User = await this.usersRepository.findOne({
-        where: {
-          username,
-        },
-      });
-      if (user) return user;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-    throw new NotFoundException();
   }
 
   async deleteToken(token: string) {
