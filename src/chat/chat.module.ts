@@ -11,6 +11,7 @@ import { ChatController } from './chat.controller';
 import { ChatGateway } from './chat.gateway';
 import { ChatService } from './chat.service';
 import { GatewayService } from './gateway.service';
+import { MessageController } from './message.controller';
 import { MessageService } from './message.service';
 
 @Module({
@@ -20,7 +21,7 @@ import { MessageService } from './message.service';
     TypeOrmModule.forFeature([Chat, User, Message]),
     CacheModule.register(),
   ],
-  controllers: [ChatController, AdminController],
+  controllers: [ChatController, AdminController, MessageController],
   providers: [
     ChatGateway,
     ChatService,
