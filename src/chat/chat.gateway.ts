@@ -7,6 +7,8 @@ import {
   Logger,
   UseFilters,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   BaseWsExceptionFilter,
@@ -23,12 +25,15 @@ import {
 } from '@nestjs/websockets';
 import { Server, ServerOptions, Socket } from 'socket.io';
 import { AuthTypes } from 'src/@types/AuthTypes';
-import { MessageTypes } from 'src/@types/MessageTypes';
+import { Events } from 'src/@types/Events';
 import { Authentication } from 'src/decorators/authentication.decorator';
 import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { ChatService } from './chat.service';
 import { Cache } from 'cache-manager';
 import { MessageService } from './message.service';
+import { GatewayService } from './gateway.service';
+import { MessageDataDto } from 'src/dto/MessageDataDto';
+import { WsExceptionFilter } from 'src/filters/WsExceptionFiler';
 
 @WebSocketGateway(80, { cors: '*', namespace: '/chat' })
 export class ChatGateway
@@ -37,6 +42,7 @@ export class ChatGateway
   constructor(
     private chatService: ChatService,
     private messageService: MessageService,
+    private gatewayService: GatewayService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -66,7 +72,7 @@ export class ChatGateway
     }
 
     client.join(auth.chatId);
-    client.emit(MessageTypes.JOINED_ROOM, auth.chatId);
+    client.emit(Events.JOINED_ROOM, auth.chatId);
 
     console.log(`Client connected: ${client.id}`);
   }
@@ -77,22 +83,27 @@ export class ChatGateway
 
   // @Authentication(AuthTypes.ACCESS)
   // @UseGuards(AuthenticationGuard)
-  @SubscribeMessage(MessageTypes.MESSAGE_FROM_CLIENT)
+  @SubscribeMessage(Events.MESSAGE_FROM_CLIENT)
+  @UsePipes(new ValidationPipe())
+  @UseFilters(new WsExceptionFilter())
   async message(
     client: Socket,
-    message: { sender: string; room: string; body: string },
+    // message: { sender: string; room: string; body: string },
+    message: MessageDataDto,
   ) {
+    const isDataValid = await this.gatewayService.validateMessageData(message);
+
     if (client.rooms.has(message.room)) {
       try {
-        this.messageService.createMessage();
+        // this.messageService.createMessage();
       } catch (e) {}
-      this.wss.to(message.room).emit(MessageTypes.MESSAGE_FROM_SERVER, message);
+      this.wss.to(message.room).emit(Events.MESSAGE_FROM_SERVER, message);
     } else {
       //client.disconnect();
     }
   }
 
-  @SubscribeMessage(MessageTypes.DISCONNECT)
+  @SubscribeMessage(Events.DISCONNECT)
   disconnect(client: Socket, data: any) {
     console.log(`Client disconnected: ${client.id}`);
     console.log(data);
@@ -103,7 +114,7 @@ export class ChatGateway
   //   client.emit(client.)
   // }
 
-  @SubscribeMessage(MessageTypes.JOIN_ROOM)
+  @SubscribeMessage(Events.JOIN_ROOM)
   async joinRoom(client: Socket, data: any) {
     if (
       !(await this.chatService.validJoinData({
@@ -113,7 +124,7 @@ export class ChatGateway
       }))
     ) {
       client.emit(
-        MessageTypes.JOIN_DECLINED,
+        Events.JOIN_DECLINED,
         (data =
           `${data.roomId} - Cannot authenticate user to given room` ||
           'Room not specified'),
@@ -124,13 +135,13 @@ export class ChatGateway
     client.join(data.chatId);
     console.log(`${client.id} joined ${data.chatId}`);
 
-    client.emit(MessageTypes.JOINED_ROOM, data.chatId);
+    client.emit(Events.JOINED_ROOM, data.chatId);
   }
 
-  @SubscribeMessage(MessageTypes.LEAVE_ROOM)
+  @SubscribeMessage(Events.LEAVE_ROOM)
   leaveRoom(client: Socket, room: string) {
     client.leave(room);
-    client.emit(MessageTypes.LEFT_ROOM, room);
+    client.emit(Events.LEFT_ROOM, room);
   }
 
   @SubscribeMessage('request')
