@@ -6,7 +6,9 @@ import {
   ManyToMany,
   JoinColumn,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
+import Message from './Message.entity';
 import User from './User.entity';
 
 @Entity()
@@ -37,4 +39,7 @@ export default class Chat {
     nullable: true,
   })
   password: string;
+
+  @OneToMany(() => Message, (message) => message.chat)
+  messages: Message[];
 }
