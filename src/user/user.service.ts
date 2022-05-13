@@ -49,4 +49,13 @@ export class UserService {
     }
     throw new NotFoundException();
   }
+
+  async getUserChats(id: string): Promise<User> {
+    const user: User = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['user.chats'],
+    });
+
+    return user;
+  }
 }
