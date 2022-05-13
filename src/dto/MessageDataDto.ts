@@ -1,11 +1,6 @@
 import { IsNotEmpty, IsUUID, Length } from 'class-validator';
 
 export class MessageDataDto {
-  constructor(data: MessageDataDto) {
-    this.sender = data.sender;
-    this.room = data.room;
-    this.body = data.room;
-  }
   @IsNotEmpty()
   @IsUUID()
   sender: string;
@@ -16,5 +11,5 @@ export class MessageDataDto {
 
   @IsNotEmpty()
   @Length(0, 2000)
-  body;
+  body: string;
 }
