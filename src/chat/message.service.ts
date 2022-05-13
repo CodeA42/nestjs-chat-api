@@ -18,7 +18,7 @@ export class MessageService {
     message.body = messageData.body;
     message.user = messageData.userId as User;
     message.chat = messageData.chatId as Chat;
-    message.time = messageData.time;
+    message.time = Date.now();
 
     return await this.messageRepository.save(message);
   }
