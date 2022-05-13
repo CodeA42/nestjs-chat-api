@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import User from 'src/entities/User.entity';
 import Message from 'src/entities/Message.entity';
 import { CreateMessageDto } from 'src/dto/CreateMessageDto';
+import { MessageDataDto } from 'src/dto/MessageDataDto';
 
 @Injectable()
 export class MessageService {
@@ -13,11 +14,11 @@ export class MessageService {
     @InjectRepository(Message) private messageRepository: Repository<Message>,
   ) {}
 
-  async createMessage(messageData: CreateMessageDto) {
+  async createMessage(messageData: MessageDataDto) {
     const message = new Message();
     message.body = messageData.body;
-    message.user = messageData.userId as User;
-    message.chat = messageData.chatId as Chat;
+    message.userId = messageData.sender || messageData.userId;
+    message.chatId = messageData.room || messageData.chatId;
     message.time = Date.now();
 
     return await this.messageRepository.save(message);
@@ -50,6 +51,7 @@ export class MessageService {
   async updateMessage(id: string, body: string) {
     const message: Message = await this.getMessage(id);
     message.body = body;
+    message.edited = Date.now();
 
     return await this.messageRepository.save(message);
   }
