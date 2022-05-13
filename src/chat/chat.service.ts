@@ -34,10 +34,7 @@ export class ChatService {
    */
   async createChat(chatData: CreateChatDto, adminId: string): Promise<string> {
     try {
-      const hashedPassword: string = await hash(
-        chatData.password,
-        +this.configService.get<number>('SALT_ROUNDS'),
-      );
+      const hashedPassword: string = await this.prepPassword(chatData.password);
       const user: User = await this.userRepository.findOne(adminId);
 
       const chat = new Chat();
@@ -52,6 +49,16 @@ export class ChatService {
       console.error(e);
       throw new InternalServerErrorException();
     }
+  }
+
+  private async prepPassword(password: string) {
+    if (password) {
+      return await hash(
+        password,
+        +this.configService.get<number>('SALT_ROUNDS'),
+      );
+    }
+    return password;
   }
 
   /**
@@ -154,20 +161,37 @@ export class ChatService {
   ): Promise<ChatRoomKey> {
     const chat: Chat = await this.getChatWithUsers(chatId);
 
-    if (await compare(password, chat.password)) {
-      const user: User = await this.userRepository.findOne({
-        where: { id: userId },
-      });
-
-      chat.users.push(user);
-      await this.chatRepository.save(chat);
-      const uuid: string = uuidv4();
-
-      await this.cacheManager.set(`${chatId}-${userId}`, uuid, { ttl: 5 });
-
-      return { id: chatId, uuid };
+    if (chat.password && !this.compareChatPasswords(password, chat.password)) {
+      throw new UnauthorizedException();
     }
-    throw new UnauthorizedException();
+
+    const user: User = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    chat.users.push(user);
+    await this.chatRepository.save(chat);
+    const uuid: string = uuidv4();
+
+    await this.cacheManager.set(`${chatId}-${userId}`, uuid, {
+      ttl: 86400,
+    });
+
+    return { id: chatId, uuid };
+  }
+
+  /**
+   * @returns true if the passwords match false if they dont or if the user password is empty
+   */
+  private async compareChatPasswords(
+    passwordFromUser: string,
+    chatPassword: string,
+  ) {
+    if (!passwordFromUser) {
+      return false;
+    }
+
+    return await compare(passwordFromUser, chatPassword);
   }
 
   async getChatWithUsers(id: string) {
