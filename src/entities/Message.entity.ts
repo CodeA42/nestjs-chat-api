@@ -38,4 +38,10 @@ export default class Message {
     type: 'bigint',
   })
   time: number;
+
+  @Column({
+    type: 'bigint',
+    nullable: true,
+  })
+  edited: number;
 }
