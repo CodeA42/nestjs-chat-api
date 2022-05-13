@@ -7,4 +7,6 @@ export class MessageTypes {
   static MESSAGE_FROM_SERVER = 'messageFromServer';
   static DISCONNECT = 'disconnect';
   static CONNECTION = 'connection';
+  static DISCONNECT_MESSAGE = 'disconnectMessage';
+  static JOIN_DECLINED = 'joinDeclined';
 }
