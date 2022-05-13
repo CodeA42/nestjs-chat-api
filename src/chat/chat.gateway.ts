@@ -34,6 +34,7 @@ import { MessageService } from './message.service';
 import { GatewayService } from './gateway.service';
 import { MessageDataDto } from 'src/dto/MessageDataDto';
 import { WsExceptionFilter } from 'src/filters/WsExceptionFiler';
+import Message from 'src/entities/Message.entity';
 
 @WebSocketGateway(80, { cors: '*', namespace: '/chat' })
 export class ChatGateway
@@ -91,16 +92,14 @@ export class ChatGateway
     // message: { sender: string; room: string; body: string },
     message: MessageDataDto,
   ) {
-    const isDataValid = await this.gatewayService.validateMessageData(message);
+    try {
+      const savedMessage: Message = await this.messageService.createMessage(
+        message,
+      );
+      console.log(savedMessage);
 
-    if (client.rooms.has(message.room)) {
-      try {
-        // this.messageService.createMessage();
-      } catch (e) {}
-      this.wss.to(message.room).emit(Events.MESSAGE_FROM_SERVER, message);
-    } else {
-      //client.disconnect();
-    }
+      this.wss.to(message.room).emit(Events.MESSAGE_FROM_SERVER, savedMessage);
+    } catch (e) {}
   }
 
   @SubscribeMessage(Events.DISCONNECT)
