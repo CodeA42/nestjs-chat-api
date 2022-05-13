@@ -16,6 +16,8 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { Cache } from 'cache-manager';
 import { ChatRoomKey } from 'src/@types';
+import { ChatGatewayAuthDto } from 'src/dto/ChatGatewayAuthDto';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class ChatService {
@@ -239,5 +241,30 @@ export class ChatService {
     const chat: Chat = await this.getChatWithUsers(id);
 
     return chat.users;
+  }
+
+  /**
+   * Validates that the user can connect to the socket with the given chatId, userId and uuid
+   * @returns true if valid false in any other case
+   */
+  async validJoinData(input: ChatGatewayAuthDto): Promise<boolean> {
+    const data = new ChatGatewayAuthDto();
+    data.chatId = input.chatId;
+    data.userId = input.userId;
+    data.uuid = input.uuid;
+
+    const validationErrors = await validate(data);
+
+    if (validationErrors.length !== 0) {
+      return false;
+    }
+
+    const cacheUuid = await this.cacheManager.get<string>(
+      `${data.chatId}-${data.userId}`,
+    );
+
+    if (data.uuid === cacheUuid) {
+      return true;
+    }
   }
 }
