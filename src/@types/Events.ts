@@ -9,4 +9,5 @@ export class Events {
   static CONNECTION = 'connection';
   static DISCONNECT_MESSAGE = 'disconnectMessage';
   static JOIN_DECLINED = 'joinDeclined';
+  static IMPROPER_MESSAGE_FORMAT = 'improperMessageFormat';
 }
