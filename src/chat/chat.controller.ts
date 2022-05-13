@@ -73,4 +73,11 @@ export class ChatController {
   getAllChatMembers(@Param('chatId', ParseUUIDPipe) id: string) {
     return this.chatService.getAllChatMembers(id);
   }
+
+  @Get('/:chatId/messages')
+  @Authentication(AuthTypes.ACCESS)
+  @Roles(RoleTypes.CHAT_MEMBER)
+  getAllChatMessages(@Param('chatId', ParseUUIDPipe) id: string) {
+    return this.chatService.getAllMessages(id);
+  }
 }
