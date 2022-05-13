@@ -18,6 +18,7 @@ import { Cache } from 'cache-manager';
 import { ChatRoomKey } from 'src/@types';
 import { ChatGatewayAuthDto } from 'src/dto/ChatGatewayAuthDto';
 import { validate } from 'class-validator';
+import Message from 'src/entities/Message.entity';
 
 @Injectable()
 export class ChatService {
@@ -266,5 +267,24 @@ export class ChatService {
     if (data.uuid === cacheUuid) {
       return true;
     }
+  }
+
+  /**
+   * Gets all messages from a given chat
+   */
+  async getAllMessages(id: string): Promise<Message[]> {
+    try {
+      const chat: Chat = await this.chatRepository.findOne({
+        where: { id },
+        relations: ['messages'],
+      });
+      console.log(chat);
+
+      if (chat) return chat.messages;
+    } catch (e) {
+      console.error(e);
+      throw new InternalServerErrorException();
+    }
+    throw new NotFoundException();
   }
 }
