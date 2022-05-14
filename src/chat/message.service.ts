@@ -2,9 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Chat from 'src/entities/Chat.entity';
 import { Repository } from 'typeorm';
-import User from 'src/entities/User.entity';
 import Message from 'src/entities/Message.entity';
-import { CreateMessageDto } from 'src/dto/CreateMessageDto';
 import { MessageDataDto } from 'src/dto/MessageDataDto';
 
 @Injectable()
