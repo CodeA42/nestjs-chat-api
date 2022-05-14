@@ -278,8 +278,6 @@ export class ChatService {
         where: { id },
         relations: ['messages'],
       });
-      console.log(chat);
-
       if (chat) return chat.messages;
     } catch (e) {
       console.error(e);
