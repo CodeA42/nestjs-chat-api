@@ -40,6 +40,7 @@
       el: '#v-app',
       data: {
         username: '',
+        userId: '',
         id: '',
         text: '',
         messages: {
@@ -60,7 +61,7 @@
         sendChatMessage() {
           //Check if user is member of active room
           if(this.isMemberOfActiveRoom) {
-            this.socket.chat.emit('messageFromClient', { sender: this.username, room: this.activeRoom ,message: this.text});
+            this.socket.chat.emit('messageFromClient', { sender: this.userId, room: this.activeRoom ,message: this.text});
           } else {
             alert('You must be a member of the active room to send messages');
           }
@@ -84,11 +85,16 @@
         }
       },
       async created() {
-        this.username = prompt('Enter your username: ');
+        const username = 'mark';
+        const password = 'cheater';
+        this.userId = 'f22d973f-7804-41f5-99d3-b6982a6df8a2';
+        this.accessToken = await fetch('http://localhost:3000/login', { method: 'POST',
+         body: { username, password }
+        }).then(res => res.json().accessToken).catch(err => console.log(err));
 
         const rooms = await fetch('http://localhost:3000/chat/', { 
           headers: { //user mark
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiZjIyZDk3M2YtNzgwNC00MWY1LTk5ZDMtYjY5ODJhNmRmOGEyIiwidXNlcm5hbWUiOiJtYXJrIiwiZW1haWwiOiJvaEBoaS5jb20ifSwiaWF0IjoxNjUyMzQyOTU4LCJleHAiOjI1MTYzNDI5NTh9.k4dcLL3EZfnRLj5zA304vPuESxY9gw0pdIH6pjs2_oA' 
+            Authorization: `Bearer ${this.accessToken}` 
           }
         }).then(response => response.json());
         
