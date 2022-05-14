@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -51,11 +55,35 @@ export class UserService {
   }
 
   async getUserChats(id: string): Promise<User> {
-    const user: User = await this.usersRepository.findOne({
-      where: { id },
-      relations: ['user.chats'],
-    });
+    try {
+      const user: User = await this.usersRepository.findOne({
+        where: { id },
+        relations: ['user.chats'],
+      });
 
-    return user;
+      if (user) return user;
+      throw new NotFoundException();
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      console.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async getUser(id: string): Promise<User> {
+    try {
+      const user: User = await this.usersRepository.findOne({ where: { id } });
+
+      if (user) return user;
+      throw new NotFoundException();
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      console.error(e);
+      throw new InternalServerErrorException();
+    }
   }
 }
