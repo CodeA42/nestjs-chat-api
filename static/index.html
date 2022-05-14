@@ -29,8 +29,8 @@
     </div>
     <p>
       <ul>
-        <li v-for="msg of messages[activeRoom]">
-          <strong>{{ msg.sender }}:</strong> {{ msg.message }}
+        <li v-for="message of messages[activeRoom]">
+          <strong>{{ message.sender }}:</strong> {{ message.body }}
         </li>
       </ul>
     </p>
@@ -45,9 +45,6 @@
         id: '',
         text: '',
         messages: {
-          general: [],
-          typescript: [],
-          nestjs: [],
         },
         // rooms: {
         //   general: false,
