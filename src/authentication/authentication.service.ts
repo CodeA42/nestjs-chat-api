@@ -74,6 +74,8 @@ export class AuthenticationService {
       if (e instanceof NotFoundException) {
         throw new WrongCredentialsException();
       }
+      console.error(e);
+      throw new InternalServerErrorException();
     }
 
     const tokenData: TokenUserDto = {
