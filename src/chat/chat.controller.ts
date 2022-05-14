@@ -19,6 +19,7 @@ import { chatPasswordDto } from 'src/dto/ChatPasswordDto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RoleTypes } from 'src/@types/RoleTypes';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
+import Message from 'src/entities/Message.entity';
 
 @Controller('chat')
 @UseGuards(AuthenticationGuard, AuthorizationGurad)
@@ -77,7 +78,9 @@ export class ChatController {
   @Get('/:chatId/messages')
   @Authentication(AuthTypes.ACCESS)
   @Roles(RoleTypes.CHAT_MEMBER)
-  getAllChatMessages(@Param('chatId', ParseUUIDPipe) id: string) {
+  getAllChatMessages(
+    @Param('chatId', ParseUUIDPipe) id: string,
+  ): Promise<Message[]> {
     return this.chatService.getAllMessages(id);
   }
 }
