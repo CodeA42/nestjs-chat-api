@@ -29,57 +29,41 @@ export class AuthenticationGuard implements CanActivate {
 
     let isAuthenticated = false;
 
-    if (authenticationType === AuthTypes.REFRESH) {
-      const req: Request = context.switchToHttp().getRequest();
-      const res: Response = context.switchToHttp().getResponse();
-      const refreshToken = req.cookies?.[AuthTypes.REFRESH];
+    const req: Request = context.switchToHttp().getRequest();
+    const res: Response = context.switchToHttp().getResponse();
 
-      try {
-        const data = verify(
-          refreshToken,
-          this.configService.get(AuthTypes.REFRESH_SECRET),
-        ) as JwtPayload;
+    const isRefresh = authenticationType === AuthTypes.REFRESH;
 
-        if (Math.floor(Date.now() / 1000) >= data.exp) {
-          await this.authenticationService.deleteToken(refreshToken);
+    try {
+      let secret: string;
+      let token: string;
+
+      if (isRefresh) {
+        secret = AuthTypes.REFRESH_SECRET;
+        token = req.cookies?.[AuthTypes.REFRESH];
+      } else {
+        secret = AuthTypes.ACCESS_SECRET;
+        const authHeader = req.headers['authorization'];
+        token = authHeader && authHeader.split(' ')[1];
+      }
+
+      const data = verify(token, this.configService.get(secret)) as JwtPayload;
+
+      if (Math.floor(Date.now() / 1000) >= data.exp) {
+        if (isRefresh) {
+          await this.authenticationService.deleteToken(token);
           res.clearCookie(AuthTypes.REFRESH);
-          throw new SessionExpiredException();
-        } else {
-          req.user = data.user;
-          isAuthenticated = true;
         }
-      } catch (e) {
-        if (e instanceof SessionExpiredException) {
-          throw e;
-        }
-        throw new UnauthorizedException();
+        throw new SessionExpiredException();
+      } else {
+        req.user = data.user;
+        isAuthenticated = true;
       }
-    }
-
-    if (authenticationType === AuthTypes.ACCESS) {
-      const req: Request = context.switchToHttp().getRequest();
-
-      const authHeader = req.headers['authorization'];
-      const accessToken = authHeader && authHeader.split(' ')[1];
-
-      try {
-        const data = verify(
-          accessToken,
-          this.configService.get<string>(AuthTypes.ACCESS_SECRET),
-        ) as JwtPayload;
-
-        if (Math.floor(Date.now() / 1000) >= data.exp) {
-          throw new SessionExpiredException();
-        } else {
-          req.user = data.user;
-          isAuthenticated = true;
-        }
-      } catch (e) {
-        if (e instanceof SessionExpiredException) {
-          throw e;
-        }
-        throw new UnauthorizedException();
+    } catch (e) {
+      if (e instanceof SessionExpiredException) {
+        throw e;
       }
+      throw new UnauthorizedException();
     }
 
     return isAuthenticated;
