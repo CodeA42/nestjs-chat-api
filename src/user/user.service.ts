@@ -3,11 +3,9 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import User from '../entities/User.entity';
-import Token from '../entities/Token.entity';
 
 Injectable();
 export class UserService {
