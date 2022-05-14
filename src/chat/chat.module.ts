@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import Chat from 'src/entities/Chat.entity';
 import Message from 'src/entities/Message.entity';
 import User from 'src/entities/User.entity';
+import { UserService } from 'src/user/user.service';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { ChatController } from './chat.controller';
@@ -20,6 +21,7 @@ import { MessageService } from './message.service';
     MulterModule,
     TypeOrmModule.forFeature([Chat, User, Message]),
     CacheModule.register(),
+    UserService,
   ],
   controllers: [ChatController, AdminController, MessageController],
   providers: [
@@ -28,6 +30,7 @@ import { MessageService } from './message.service';
     AdminService,
     MessageService,
     GatewayService,
+    UserService,
   ],
 })
 export class ChatModule {}
