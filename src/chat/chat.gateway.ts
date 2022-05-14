@@ -11,9 +11,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import {
-  BaseWsExceptionFilter,
-  ConnectedSocket,
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
@@ -21,13 +18,9 @@ import {
   WebSocketGateway,
   WebSocketServer,
   WsException,
-  WsResponse,
 } from '@nestjs/websockets';
-import { Server, ServerOptions, Socket } from 'socket.io';
-import { AuthTypes } from 'src/@types/AuthTypes';
+import { Server, Socket } from 'socket.io';
 import { Events } from 'src/@types/Events';
-import { Authentication } from 'src/decorators/authentication.decorator';
-import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { ChatService } from './chat.service';
 import { Cache } from 'cache-manager';
 import { MessageService } from './message.service';
@@ -43,8 +36,6 @@ export class ChatGateway
   constructor(
     private chatService: ChatService,
     private messageService: MessageService,
-    private gatewayService: GatewayService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @WebSocketServer()
@@ -87,19 +78,21 @@ export class ChatGateway
   @SubscribeMessage(Events.MESSAGE_FROM_CLIENT)
   @UsePipes(new ValidationPipe())
   @UseFilters(new WsExceptionFilter())
-  async message(
-    client: Socket,
-    // message: { sender: string; room: string; body: string },
-    message: MessageDataDto,
-  ) {
+  async message(client: Socket, message: MessageDataDto) {
     try {
       const savedMessage: Message = await this.messageService.createMessage(
         message,
       );
-      console.log(savedMessage);
 
-      this.wss.to(message.room).emit(Events.MESSAGE_FROM_SERVER, savedMessage);
-    } catch (e) {}
+      const messageToSend: MessageDataDto = new MessageDataDto();
+      messageToSend.sender = savedMessage.userId;
+      messageToSend.body = savedMessage.body;
+      messageToSend.time = savedMessage.time;
+
+      this.wss.to(message.room).emit(Events.MESSAGE_FROM_SERVER, messageToSend);
+    } catch (e) {
+      throw new WsException(e.name);
+    }
   }
 
   @SubscribeMessage(Events.DISCONNECT)
