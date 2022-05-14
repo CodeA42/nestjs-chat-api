@@ -6,14 +6,14 @@ import { Socket } from 'socket.io';
 import { Events } from 'src/@types/Events';
 
 export class WsExceptionFilter implements BaseWsExceptionFilter {
-  catch(exception: any, host: ArgumentsHost): void {
-    console.log(exception);
+  catch(err: any, host: ArgumentsHost): void {
+    console.log(err);
 
     const client: Socket = host.switchToWs().getClient();
     const data = host.switchToWs().getData();
     client.emit(Events.IMPROPER_MESSAGE_FORMAT, {
       data,
-      error: exception.name,
+      error: err.response,
     });
   }
   handleError<TClient extends { emit: Function }>(
