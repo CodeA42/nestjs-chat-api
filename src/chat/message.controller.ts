@@ -17,7 +17,6 @@ import { AuthenticationGuard } from 'src/guards/Authentication.guard';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
 import { MessageService } from './message.service';
 import { RoleTypes } from 'src/@types/RoleTypes';
-import { MessageDataDto } from 'src/dto/MessageDataDto';
 import { User } from 'src/decorators/user.decorator';
 
 @Controller('/chat/:chatId/message')
