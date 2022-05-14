@@ -62,7 +62,7 @@
         sendChatMessage() {
           //Check if user is member of active room
           if(this.isMemberOfActiveRoom) {
-            this.socket.chat.emit('messageFromClient', { sender: this.userId, room: this.activeRoom ,message: this.text});
+            this.socket.chat.emit('messageFromClient', { sender: this.userId, room: this.activeRoom , body: this.text});
           } else {
             alert('You must be a member of the active room to send messages');
           }
