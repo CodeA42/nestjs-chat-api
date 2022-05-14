@@ -20,6 +20,7 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { RoleTypes } from 'src/@types/RoleTypes';
 import { AuthorizationGurad } from 'src/guards/Authorization.guard';
 import Message from 'src/entities/Message.entity';
+import UserEntity from 'src/entities/User.entity';
 
 @Controller('chat')
 @UseGuards(AuthenticationGuard, AuthorizationGurad)
@@ -71,7 +72,9 @@ export class ChatController {
   @Get('/:chatId/users')
   @Authentication(AuthTypes.ACCESS)
   @Roles(RoleTypes.CHAT_MEMBER)
-  getAllChatMembers(@Param('chatId', ParseUUIDPipe) id: string) {
+  getAllChatMembers(
+    @Param('chatId', ParseUUIDPipe) id: string,
+  ): Promise<UserEntity[]> {
     return this.chatService.getAllChatMembers(id);
   }
 
