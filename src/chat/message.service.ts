@@ -1,25 +1,46 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Chat from 'src/entities/Chat.entity';
 import { Repository } from 'typeorm';
 import Message from 'src/entities/Message.entity';
 import { MessageDataDto } from 'src/dto/MessageDataDto';
+import { UserService } from 'src/user/user.service';
+import { ChatService } from './chat.service';
+import User from 'src/entities/User.entity';
 
 @Injectable()
 export class MessageService {
   constructor(
-    @InjectRepository(Chat) private chatRepository: Repository<Chat>,
     @InjectRepository(Message) private messageRepository: Repository<Message>,
+    private userService: UserService,
+    private chatService: ChatService,
   ) {}
 
   async createMessage(messageData: MessageDataDto) {
-    const message = new Message();
-    message.body = messageData.body;
-    message.userId = messageData.sender || messageData.userId;
-    message.chatId = messageData.room || messageData.chatId;
-    message.time = Date.now();
+    //Getting user and chat in case they dont exits in db
+    const user: User = await this.userService.getUser(
+      messageData.sender || messageData.userId,
+    );
 
-    return await this.messageRepository.save(message);
+    const chat: Chat = await this.chatService.getChat(
+      messageData.room || messageData.chatId,
+    );
+    try {
+      const message = new Message();
+      message.body = messageData.body;
+      message.user = user;
+      message.chat = chat;
+      message.time = Date.now();
+
+      return await this.messageRepository.save(message);
+    } catch (e) {
+      console.error(e);
+      throw new InternalServerErrorException();
+    }
   }
 
   async getMessage(id: string) {
