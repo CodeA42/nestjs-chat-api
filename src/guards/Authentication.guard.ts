@@ -32,13 +32,13 @@ export class AuthenticationGuard implements CanActivate {
     const req: Request = context.switchToHttp().getRequest();
     const res: Response = context.switchToHttp().getResponse();
 
-    const isRefresh = authenticationType === AuthTypes.REFRESH;
+    const isRefreshToken = authenticationType === AuthTypes.REFRESH;
 
     try {
       let secret: string;
       let token: string;
 
-      if (isRefresh) {
+      if (isRefreshToken) {
         secret = AuthTypes.REFRESH_SECRET;
         token = req.cookies?.[AuthTypes.REFRESH];
       } else {
@@ -49,16 +49,16 @@ export class AuthenticationGuard implements CanActivate {
 
       const data = verify(token, this.configService.get(secret)) as JwtPayload;
 
-      if (Math.floor(Date.now() / 1000) >= data.exp) {
-        if (isRefresh) {
+      if (!this.isValidToken) {
+        if (isRefreshToken) {
           await this.authenticationService.deleteToken(token);
           res.clearCookie(AuthTypes.REFRESH);
         }
         throw new SessionExpiredException();
-      } else {
-        req.user = data.user;
-        isAuthenticated = true;
       }
+
+      req.user = data.user;
+      isAuthenticated = true;
     } catch (e) {
       if (e instanceof SessionExpiredException) {
         throw e;
@@ -67,5 +67,9 @@ export class AuthenticationGuard implements CanActivate {
     }
 
     return isAuthenticated;
+  }
+
+  isValidToken(data: JwtPayload): boolean {
+    return data.exp >= Math.floor(Date.now() / 1000);
   }
 }
