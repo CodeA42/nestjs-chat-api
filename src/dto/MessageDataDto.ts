@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsUUID, Length, ValidateIf } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+  Length,
+  ValidateIf,
+} from 'class-validator';
 
 export class MessageDataDto {
   @IsNotEmpty()
@@ -24,4 +31,8 @@ export class MessageDataDto {
   @IsNotEmpty()
   @Length(0, 2000)
   body: string;
+
+  @IsOptional()
+  @IsNumber()
+  time?: number;
 }
