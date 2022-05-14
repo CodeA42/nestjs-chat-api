@@ -63,6 +63,7 @@ export class AuthenticationGuard implements CanActivate {
       if (e instanceof SessionExpiredException) {
         throw e;
       }
+      console.error(e);
       throw new UnauthorizedException();
     }
 
