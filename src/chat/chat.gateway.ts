@@ -1,15 +1,4 @@
-import {
-  CACHE_MANAGER,
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Logger,
-  UseFilters,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -22,9 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Events } from 'src/@types/Events';
 import { ChatService } from './chat.service';
-import { Cache } from 'cache-manager';
 import { MessageService } from './message.service';
-import { GatewayService } from './gateway.service';
 import { MessageDataDto } from 'src/dto/MessageDataDto';
 import { WsExceptionFilter } from 'src/filters/WsExceptionFiler';
 import Message from 'src/entities/Message.entity';
