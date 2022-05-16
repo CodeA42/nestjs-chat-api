@@ -7,15 +7,14 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Namespace, Server, Socket } from 'socket.io';
 import { Events } from 'src/@types/Events';
 import { MessageDataDto } from 'src/dto/MessageDataDto';
 import { WsExceptionFilter } from 'src/filters/WsExceptionFiler';
 import { ChatService } from '../chat.service';
-import { MessageService } from '../message.service';
 import { SocketService } from './socket.service';
 
-@WebSocketGateway(80, { cors: '*', namespace: '/chat_gateway' })
+@WebSocketGateway(80, { cors: '*', namespace: '/chat' })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -25,11 +24,11 @@ export class ChatGateway
   ) {}
 
   @WebSocketServer()
-  io: Server;
+  namespace: Namespace;
 
   private logger: Logger = new Logger('ChatGateway');
-  afterInit(server: Server) {
-    this.socketService.io = server;
+  afterInit(namespace: Namespace) {
+    this.socketService.io = namespace.server;
     this.logger.log('Initialized!');
   }
 
@@ -47,7 +46,7 @@ export class ChatGateway
     }
 
     client.join(auth.chatId);
-    this.chatService.userConnected(client.id, auth.chatId, auth.userId);
+    client.data = { user: { id: auth.userId } };
     client.emit(Events.JOINED_ROOM, auth.chatId);
 
     console.log(`Client connected: ${client.id}`);
