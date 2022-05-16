@@ -10,9 +10,10 @@ import { UserService } from 'src/user/user.service';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { ChatController } from './chat.controller';
-import { ChatGateway } from './chat.gateway';
 import { ChatService } from './chat.service';
 import { GatewayService } from './gateway.service';
+import { ChatGateway } from './gateway/chat.gateway';
+import { SocketService } from './gateway/socket.service';
 import { MessageController } from './message.controller';
 import { MessageService } from './message.service';
 
@@ -32,6 +33,7 @@ import { MessageService } from './message.service';
     MessageService,
     GatewayService,
     UserService,
+    SocketService,
   ],
 })
 export class ChatModule {}
