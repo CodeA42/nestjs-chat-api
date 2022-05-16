@@ -27,7 +27,7 @@ export class AuthenticationService {
     private userService: UserService,
   ) {}
 
-  async register(userAuthDto: UserAuthDto): Promise<{ id: string }> {
+  async register(userAuthDto: UserAuthDto): Promise<{ username: string }> {
     try {
       await this.userService.selectByEmail(userAuthDto.email);
       throw new EmailExistsException();
@@ -55,7 +55,7 @@ export class AuthenticationService {
     }
 
     const user: User = await this.hashPaswordAndInsertUser(userAuthDto);
-    return { id: user.id };
+    return { username: user.username };
   }
 
   async login(
