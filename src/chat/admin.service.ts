@@ -1,6 +1,4 @@
 import {
-  CACHE_MANAGER,
-  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -14,7 +12,8 @@ import { hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { UpdateChatDataDto } from 'src/dto/UpdateChatDataDto';
 import { KickedUser } from 'src/@types';
-import { Cache } from 'cache-manager';
+import { SocketService } from './gateway/socket.service';
+import { Namespace, Server } from 'socket.io';
 
 @Injectable()
 export class AdminService {
@@ -22,7 +21,7 @@ export class AdminService {
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
     private readonly chatService: ChatService,
     private readonly configService: ConfigService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly socketService: SocketService,
   ) {}
 
   /**
@@ -120,7 +119,19 @@ export class AdminService {
    * @returns Chat room id and kicked user id object.
    */
   async kickUser(chatId: string, userId: string): Promise<KickedUser> {
-    await this.chatService.leaveChat(chatId, userId);
+    // await this.chatService.leaveChat(chatId, userId);
+    const namespace: Namespace = this.socketService.io.of(`/${chatId}`);
+    console.log(namespace);
+    console.log(namespace.sockets);
+
+    const server: Server = await this.socketService.io;
+
+    console.log(server.sockets);
+
+    // sockets.filter()
+
+    // console.log(this.socketService.io.of('/chat').sockets);
+
     return { chatId, userId };
   }
 }
